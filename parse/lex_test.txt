@@ -1,0 +1,15 @@
+else if int return void while
++ - * / < <= > >= == != = ; , ( ) [ ] { } /* */
+111 222 333 44 0 12313
+a AAAA aAa _A _aa00
+/* serw at
+   sertk /* ************** /
+else if int return void while
++ - * / < <= > >= == != = ; , ( ) [ ] { } /*
+111 222 333 44 0 12313
+a AAAA aAa _A _aa00
+/* serw at
+   ***************** ****/ else i/************/f int return void while
++ - * / < <= > >= == != = ; , ( ) [ ] { } /* */
+111 222 333 44 0 12313
+a AAAA aAa _A _aa00
