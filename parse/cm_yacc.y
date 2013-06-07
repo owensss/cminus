@@ -1,11 +1,30 @@
 %{
-#include <stdio.h>
+#define TEST
+
+#ifdef TEST
+#endif
+#include <cstdio>
+#include "include/cm_base.h"
+#include "AST/Node.hpp"
 extern int yylineno;
+int yylex(void);  
+void yyerror(const char* what);
+int yyparse(void);
+int yywrap();
+using namespace cminus;
 %}
+
+%debug
+%error-verbose
 %union {
 	int num;
 	char* str;
 	char op;
+	Node_program* node_program;
+	Node_declaration_list* node_declaration_list;
+	Node_declaration* node_declaration;
+	Node_var_declaration* node_var_declaration;
+	cm_type type;
 }
 
 %token ELSE IF VOID WHILE
@@ -15,24 +34,35 @@ extern int yylineno;
 %token<str> ID
 %token GE LE UEQ EQU
 %start program
+
+%type<type> type_specifier;
+%type<node_program> program
+%type<node_declaration_list> declaration_list;
+%type<node_declaration> declaration;
+%type<node_var_declaration> var_declaration;
 %%
-program: declaration_list
+program: declaration_list {$$ = new Node_program($1);}
 			;
 
-declaration_list: declaration_list declaration
-			| declaration
+declaration_list: declaration_list declaration { $$ = new Node_declaration_list($1, $2); }
+			| declaration { $$ = new Node_declaration_list($1); }
 			;
 
-declaration: var_declaration
+declaration: var_declaration {$$ = $1;}
 			| fun_declaration
 			;
 
-var_declaration: type_specifier ID ';'
-			| type_specifier ID '[' NUM ']' ';'
+var_declaration: type_specifier ID ';' {
+					printf("%d, %s\n", $1, $2);
+					$$ = new Node_var_declaration($1, $2);
+				 }
+			| type_specifier ID '[' NUM ']' ';' {
+					$$ = new Node_var_declaration($1, $2, $4);
+				}
 			;
 
-type_specifier: INT
-			| VOID
+type_specifier: INT {printf("int\n"); $$ = CM_INT;}
+			| VOID {$$ = CM_VOID;}
 			;
 
 fun_declaration: type_specifier ID '(' params ')' compound_stmt
@@ -135,5 +165,5 @@ int main () {
 }
 
 void yyerror(const char* what) {
-	printf("%d:error:%s", yylineno, what);
+	printf("%d:error:%s\n", yylineno, what);
 }

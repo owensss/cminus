@@ -1,15 +1,18 @@
 %{
-#include "cm_yacc.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#define YYDEBUG 1
+#include "include/cm_base.h"
+#include "AST/Node.hpp"
+using namespace cminus;
+#include "cm_yacc.hpp"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #ifdef TEST
 YYSTYPE yylval;
 #define TEST_OUT printf("\"%s\"", yytext);
 #else
 #define TEST_OUT ;
 #endif
-
 %}
 
 %option yylineno
@@ -65,6 +68,7 @@ key_while "while"
 {id} {
 	TEST_OUT
 	yylval.str = strdup(yytext);
+	return ID;
 }
 
 [+\-\*/<>=;,()\[\]{}] {
@@ -77,8 +81,8 @@ key_while "while"
 	do {
 		char c;
 		// find *
-		while ( (c=input()) != '*');
-		while ( (c=input()) == '*' );
+		while ( (c=yyinput()) != '*');
+		while ( (c=yyinput()) == '*' );
 		if (c == '/') done = 1;
 	} while (! done);
 }
@@ -103,7 +107,10 @@ key_while "while"
 	return EQU;
 }
 
+
 "\n" {}
+
+. {;}
 
 %%
 

@@ -1,12 +1,19 @@
-yacc_test: cm_lex.c cm_yacc.c
-	gcc -o yacc_test cm_yacc.c cm_lex.c -ly
+CC=g++
+CFLAGS=-Wall -std=c++0x -ly -lfl
+INCLUDE=-I..
+PATH+=..
 
-lex_test: cm_lex.c cm_yacc.c
-	gcc -o lex_test cm_lex.c -ly
+yacc_test: cm_lex.cpp cm_yacc.cpp ../AST/Node.cpp
+	$(CC) -o yacc_test cm_yacc.cpp cm_lex.cpp ../AST/Node.cpp $(CFLAGS) $(INCLUDE)
 
-cm_yacc.c: cm_yacc.y
-	yacc -o cm_yacc.c -d cm_yacc.y
+lex_test: cm_lex.cpp cm_yacc.cpp
+	$(CC) -o lex_test cm_lex.cpp $(CFLAGS) $(INCLUDE)
 
-cm_lex.c: cm_lex.l
-	lex -o cm_lex.c cm_lex.l
+cm_yacc.cpp: cm_yacc.y
+	bison -o cm_yacc.cpp -d cm_yacc.y
 
+cm_lex.cpp: cm_lex.l cm_yacc.y
+	flex -o cm_lex.cpp cm_lex.l
+
+clean:
+	rm *.cpp *.hpp
