@@ -17,14 +17,33 @@ using namespace cminus;
 %debug
 %error-verbose
 %union {
-	int num;
-	char* str;
-	char op;
-	Node_program* node_program;
-	Node_declaration_list* node_declaration_list;
-	Node_declaration* node_declaration;
-	Node_var_declaration* node_var_declaration;
-	cm_type type;
+	int                         num;
+	char*                       str;
+	char                        op;
+	Node_program*               node_program;
+	Node_declaration_list*      node_declaration_list;
+	Node_declaration*           node_declaration;
+	Node_var_declaration*       node_var_declaration;
+	Node_fun_declaration*       node_fun_declaration;
+	Node_params*                node_params;
+	Node_param_list*            node_param_list;
+	Node_param*                 node_param;
+	Node_compound_stmt*         node_compound_stmt;
+	Node_local_declarations*    node_local_decaration;
+	Node_statement_list*        node_statement_list;
+	Node_statement*             node_statement;
+	Node_expression_statement*  node_expression_statement;
+	Node_selection_statement*   node_selection_statement;
+	Node_iteration_stmt*        node_iteraton_stmt;
+	Node_return_stmt*           node_return_stmt;
+	Node_var*                   node_var;
+	Node_simple_expression*     node_simple_expression;
+	Node_additive_expression*   node_additive_expression;
+	Node_term*                  node_term;
+	Node_factor*                node_factor;
+	Node_call*                  node_call;
+	Node_arg_list*              node_arg_list;             
+	cm_type                     type;
 }
 
 %token ELSE IF VOID WHILE
@@ -34,12 +53,31 @@ using namespace cminus;
 %token<str> ID
 %token GE LE UEQ EQU
 %start program
+%type<type>                     type_specifier;
+%type<node_program>             program;
+%type<node_declaration_list>    declaration_list;
+%type<node_declaration>         declaration;
+%type<node_var_declaration>     var_declaration;
+%type<node_fun_declaration>     fun_declaration; 
+%type<node_params>              params;
+%type<node_param_list>          param_list;
+%type<node_param>               param;
+%type<node_compound_stmt>       compound_stmt;
+%type<node_local_decaration>    local_decaration;
+%type<node_statement_list>      statement_list;
+%type<node_statement>           statement;
+%type<node_expression_statement>expression_statement;
+%type<node_selection_statement> selection_statement;
+%type<node_iteraton_stmt>       iteraton_stmt;
+%type<node_return_stmt>         return_stmt;
+%type<node_var>                 var;
+%type<node_simple_expression>   simple_expression;
+%type<node_additive_expression> additive_expression;
+%type<node_term>                term;
+%type<node_factor>              factor;
+%type<node_call>                call;
+%type<node_arg_list>            arg_list;            
 
-%type<type> type_specifier;
-%type<node_program> program
-%type<node_declaration_list> declaration_list;
-%type<node_declaration> declaration;
-%type<node_var_declaration> var_declaration;
 %%
 program: declaration_list {$$ = new Node_program($1);}
 			;
@@ -65,7 +103,9 @@ type_specifier: INT {printf("int\n"); $$ = CM_INT;}
 			| VOID {$$ = CM_VOID;}
 			;
 
-fun_declaration: type_specifier ID '(' params ')' compound_stmt
+fun_declaration: type_specifier ID '(' params ')' compound_stmt {
+					 printf("fun\n");
+				 }
 			;
 
 params: param_list
@@ -85,11 +125,11 @@ compound_stmt:
 		;
 
 local_declarations: local_declarations var_declaration
-			| 
+			|  /* empty */
 			;
 
 statement_list:statement_list statement
-			| 
+			|  /* empty */
 			;
 
 statement: expression_stmt
