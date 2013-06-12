@@ -1,2 +1,6 @@
 int a;
 int b;
+
+void foo(void) {
+	int a;
+}

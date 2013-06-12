@@ -29,19 +29,21 @@ using namespace cminus;
 	Node_param_list*            node_param_list;
 	Node_param*                 node_param;
 	Node_compound_stmt*         node_compound_stmt;
-	Node_local_declarations*    node_local_decaration;
+	Node_local_declarations*    node_local_declarations;
 	Node_statement_list*        node_statement_list;
 	Node_statement*             node_statement;
-	Node_expression_statement*  node_expression_statement;
-	Node_selection_statement*   node_selection_statement;
+	Node_expression_stmt*       node_expression_stmt;
+	Node_selection_stmt*        node_selection_stmt;
 	Node_iteration_stmt*        node_iteraton_stmt;
 	Node_return_stmt*           node_return_stmt;
+	Node_expression*			node_expression;
 	Node_var*                   node_var;
 	Node_simple_expression*     node_simple_expression;
 	Node_additive_expression*   node_additive_expression;
 	Node_term*                  node_term;
 	Node_factor*                node_factor;
 	Node_call*                  node_call;
+	Node_args*                  args;
 	Node_arg_list*              node_arg_list;             
 	cm_type                     type;
 }
@@ -63,19 +65,21 @@ using namespace cminus;
 %type<node_param_list>          param_list;
 %type<node_param>               param;
 %type<node_compound_stmt>       compound_stmt;
-%type<node_local_decaration>    local_decaration;
+%type<node_local_declarations>  local_declarations;
 %type<node_statement_list>      statement_list;
 %type<node_statement>           statement;
-%type<node_expression_statement>expression_statement;
-%type<node_selection_statement> selection_statement;
-%type<node_iteraton_stmt>       iteraton_stmt;
+%type<node_expression_stmt>     expression_stmt;
+%type<node_selection_stmt>      selection_stmt;
+%type<node_iteraton_stmt>       iteration_stmt;
 %type<node_return_stmt>         return_stmt;
+%type<node_expression>          expression;
 %type<node_var>                 var;
 %type<node_simple_expression>   simple_expression;
 %type<node_additive_expression> additive_expression;
 %type<node_term>                term;
 %type<node_factor>              factor;
 %type<node_call>                call;
+%type<node_args>                args;
 %type<node_arg_list>            arg_list;            
 
 %%
@@ -104,31 +108,32 @@ type_specifier: INT {printf("int\n"); $$ = CM_INT;}
 			;
 
 fun_declaration: type_specifier ID '(' params ')' compound_stmt {
-					 printf("fun\n");
+					$$ = new Node_fun_declaration($1, $2, $4, $6);
+					printf("fun\n");
 				 }
 			;
 
-params: param_list
-			| VOID
+params: param_list {$$ = new Node_params($1);}
+			| VOID {$$ = new Node_params(NULL);}
 			;
 
-param_list: param_list ',' param
-			| param
+param_list: param_list ',' param {$$ = new Node_param_list($1, $3);}
+			| param {$$ = new Node_param_list($1);}
 			;
 
-param: type_specifier ID
-			| type_specifier ID '[' ']'
+param: type_specifier ID {$$ = new Node_param($1, $2);}
+			| type_specifier ID '[' ']' {$$ = new Node_param(CM_INT_ARRAY, $2);}
 			;
 
 compound_stmt:
-		'{' local_declarations statement_list '}'
+		'{' local_declarations statement_list '}' {$$ = new Node_compound_stmt($2, $3);}
 		;
 
-local_declarations: local_declarations var_declaration
-			|  /* empty */
+local_declarations: local_declarations var_declaration {$$ = new Node_local_declarations($1, $2);}
+			|  /* empty */ {$$ = new Node_local_declarations();}
 			;
 
-statement_list:statement_list statement
+statement_list:statement_list statement {}
 			|  /* empty */
 			;
 
