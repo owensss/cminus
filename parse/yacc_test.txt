@@ -1,6 +1,47 @@
+/* decl-list */
+/* var-decl */
 int a;
 int b;
 
-void foo(void) {
+/* fun_dec */
+int foo(void) {
 	int a;
+	int b;
+	/* expression stmt */
+	a = 11 >= (10*3 + 2/(4+2));
+	/* compound stmt */
+	{
+		b = 10;
+	}
+	/* selection stmt */
+	if (1) {
+		b;
+	}
+	else {
+		a;
+	}
+
+	if (a) 12+b;
+	/* iteration stmt */
+	while (1) a +b;
+	/* return stmt */
+	return 1;
+}
+
+/* var-decl again */
+int c;
+int d;
+
+/* fundec again */
+void fun(int a, int b) {
+	if (c) d;
+
+	while (1) {
+		2+3;
+	}
+
+	foo();
+	fun(1, 2);
+
+	return ;
 }

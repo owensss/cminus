@@ -10,7 +10,7 @@ lex_test: cm_lex.cpp cm_yacc.cpp
 	$(CC) -o lex_test cm_lex.cpp $(CFLAGS) $(INCLUDE)
 
 cm_yacc.cpp: cm_yacc.y
-	bison -o cm_yacc.cpp -d cm_yacc.y
+	bison -o cm_yacc.cpp -t -d cm_yacc.y
 
 cm_lex.cpp: cm_lex.l cm_yacc.y
 	flex -o cm_lex.cpp cm_lex.l

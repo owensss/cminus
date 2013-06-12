@@ -1,7 +1,8 @@
 %{
-#define TEST
+// #define TEST
 
 #ifdef TEST
+#define YYDEBUG 1
 #endif
 #include <cstdio>
 #include "include/cm_base.h"
@@ -16,10 +17,8 @@ using namespace cminus;
 
 %debug
 %error-verbose
+
 %union {
-	int                         num;
-	char*                       str;
-	char                        op;
 	Node_program*               node_program;
 	Node_declaration_list*      node_declaration_list;
 	Node_declaration*           node_declaration;
@@ -43,9 +42,13 @@ using namespace cminus;
 	Node_term*                  node_term;
 	Node_factor*                node_factor;
 	Node_call*                  node_call;
-	Node_args*                  args;
+	Node_args*                  node_args;
 	Node_arg_list*              node_arg_list;             
 	cm_type                     type;
+	cm_ops                      op;
+	cm_relops                   relop;
+	cm_int_type                 num;
+	char*                       str;
 }
 
 %token ELSE IF VOID WHILE
@@ -81,7 +84,11 @@ using namespace cminus;
 %type<node_call>                call;
 %type<node_args>                args;
 %type<node_arg_list>            arg_list;            
+%type<op>                       addop mulop;
+%type<relop>                    RELOP;
 
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 %%
 program: declaration_list {$$ = new Node_program($1);}
 			;
@@ -91,7 +98,7 @@ declaration_list: declaration_list declaration { $$ = new Node_declaration_list(
 			;
 
 declaration: var_declaration {$$ = $1;}
-			| fun_declaration
+			| fun_declaration {$$ = $1;}
 			;
 
 var_declaration: type_specifier ID ';' {
@@ -108,8 +115,8 @@ type_specifier: INT {printf("int\n"); $$ = CM_INT;}
 			;
 
 fun_declaration: type_specifier ID '(' params ')' compound_stmt {
-					$$ = new Node_fun_declaration($1, $2, $4, $6);
 					printf("fun\n");
+					$$ = new Node_fun_declaration($1, $2, $4, $6);
 				 }
 			;
 
@@ -133,80 +140,92 @@ local_declarations: local_declarations var_declaration {$$ = new Node_local_decl
 			|  /* empty */ {$$ = new Node_local_declarations();}
 			;
 
-statement_list:statement_list statement {}
-			|  /* empty */
+statement_list:statement_list statement {$$ = new Node_statement_list($1, $2);}
+			|  {$$ = new Node_statement_list();}/* empty */
 			;
 
-statement: expression_stmt
-			| compound_stmt
-			| selection_stmt
-			| iteration_stmt
-			| return_stmt
+statement: expression_stmt {$$ = $1;}
+			| compound_stmt {$$ = $1;}
+			| selection_stmt {$$ = $1;}
+			| iteration_stmt {$$ = $1;}
+			| return_stmt {$$ = $1;}
 			;
 	
-expression_stmt: expression ';'
-			| ';'
+expression_stmt: expression ';' {$$ = new Node_expression_stmt($1);}
+			| ';' {$$ = new Node_expression_stmt(NULL);}
 			;
 
-selection_stmt: IF '(' expression ')' statement
-			| IF '(' expression ')' ELSE statement
+selection_stmt: IF '(' expression ')' statement %prec LOWER_THAN_ELSE {$$ = new Node_selection_stmt($3, $5, false);}
+			| IF '(' expression ')' statement ELSE statement {$$ = new Node_selection_stmt($3, $5, $7, true);}
 			;
 
-iteration_stmt: WHILE '(' expression ')' statement
+iteration_stmt: WHILE '(' expression ')' statement {$$ = new Node_iteration_stmt($3, $5);}
 			;
 
-return_stmt: RETURN ';'
-			| RETURN expression ';'
+return_stmt: RETURN ';' {$$ = new Node_return_stmt();}
+			| RETURN expression ';' {$$ = new Node_return_stmt($2);}
 			;
 
-expression: var '=' expression
-			| simple_expression
+expression: var '=' expression {$$ = new Node_expression($1, $3);}
+			| simple_expression {$$ = new Node_expression($1);}
 			;
 
-var: 		ID
-			| ID '[' expression ']' 
+var: 		ID {$$ = new Node_var($1);}
+			| ID '[' expression ']' {$$ = new Node_var($1, $3);}
 			;
 
-simple_expression:additive_expression RELOP additive_expression
-			| additive_expression
+simple_expression:additive_expression RELOP additive_expression {$$ = new Node_simple_expression($1, $2, $3);}
+			| additive_expression {$$ = new Node_simple_expression($1);}
 			;
 
-RELOP: GE | '<' | '>' | LE | EQU | UEQ
+RELOP: GE   {$$ = cm_ge;}
+     | '<'  {$$ = cm_lt;}
+	 | '>'  {$$ = cm_gt;}
+	 | LE   {$$ = cm_le;}
+	 | EQU  {$$ = cm_equ;}
+	 | UEQ  {$$ = cm_ueq;}
 			;
 
-additive_expression: additive_expression addop term 
-			| term
+additive_expression: additive_expression addop term {$$ = new Node_additive_expression($1, $2, $3);}
+			| term {$$ = new Node_additive_expression($1);}
 			;
 
-addop: '+' | '-'
+addop: '+' {$$ = cm_plus;}
+     | '-' {$$ = cm_minus;}
 			;
 
-term: term mulop factor
-			| factor
+term: term mulop factor {$$ = new Node_term($1, $2, $3);}
+			| factor {$$ = new Node_term($1);}
 			;
 
-mulop: '*' | '/'
+mulop: '*' {$$ = cm_multi;}
+     | '/' {$$ = cm_div;}
 			;
 
-factor: '(' expression ')'
-			| var
-			| call 
-			| NUM
+factor: '(' expression ')' {$$ = new Node_factor($2);}
+			| var {$$ = new Node_factor($1);}
+			| call {$$ = new Node_factor($1);}
+			| NUM {$$ = new Node_factor($1);}
 			;
 
-call: ID '(' args ')'
+call: ID '(' args ')' {$$ = new Node_call($1, $3);}
 		;
 
-args: arg_list
-		| 
+args: arg_list {$$ = new Node_args($1);}
+		|  {$$ = new Node_args(NULL);}
 		;
 
-arg_list: arg_list ',' expression 
-		| expression
+arg_list: arg_list ',' expression  {$$ = new Node_arg_list($1, $3);}
+		| expression {$$ = new Node_arg_list($1);}
 		;
 %%
 int main () {
-	return yyparse();
+#ifdef TEST
+	yydebug=1;
+#endif
+	if( yyparse() ) {
+		printf("Okey\n");
+	}
 }
 
 void yyerror(const char* what) {

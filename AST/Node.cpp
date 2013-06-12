@@ -1,7 +1,10 @@
 #include "Node.hpp"
 #include <cstring>
+#include <iostream>
 
-namespace { // strdup
+
+//!!!!!!!! Node_program
+namespace cminus {
 	char* strdup_(const char* str) {
 		size_t size = strlen(str);
 		char* dup;
@@ -10,10 +13,7 @@ namespace { // strdup
 		dup[size] = '\0';
 		return dup;
 	}
-}
 
-//!!!!!!!! Node_program
-namespace cminus {
 	Node_program::Node_program(Node_declaration_list* dec_list) 
 		:child(dec_list) {
 
@@ -100,5 +100,61 @@ namespace cminus {
 		list_.push_back(var);
 	}
 
+	//!!!!!!!!! Node_statement_list
+	Node_statement_list::Node_statement_list(Node_statement_list* state_list, Node_statement* state) {
+		if (state_list->first == NULL && state_list->last == NULL) {
+			state_list->first=state;
+			state_list->last=state;
+		}
+		first = state_list->first;
+		last = state;
+		std::cout << this << "\t" << state_list << "\t" << state << std::endl;
+		state_list->last->setNext(last);
+		last->setNext(NULL);
+	}
+
+	Node_statement_list::Node_statement_list(void)
+		:first(NULL), last(NULL)
+	{
+
+	}
+
+	//!!!!!!!!! Node_statement
+	Node_statement::Node_statement(void)
+		:next_(NULL) {
+
+	}
+
+	void Node_statement::setNext(Node_statement* next) {
+		next_ = next;
+	}
+
+	//!!!!!!!! Node_expression_stmt
+	Node_expression_stmt::Node_expression_stmt(Node_expression* expr)
+		:expr_(expr) {
+	}
+
+	//!!!!!!!! Node_selection_stmt
+	Node_selection_stmt::Node_selection_stmt(Node_expression* expr, Node_statement* stmt1, bool else__)
+		:expr_(expr), stmt1_(stmt1), stmt2_(NULL), else_(else__) {
+	}
+
+	Node_selection_stmt::Node_selection_stmt(Node_expression* expr, Node_statement* stmt1, Node_statement* stmt2, bool else__) 
+		:expr_(expr), stmt1_(stmt1), stmt2_(stmt2), else_(else__) 
+	{
+	}
+
+	//!!!!!!!! Node_iteration_stmt
+	Node_iteration_stmt::Node_iteration_stmt(Node_expression* expr, Node_statement* stmt)
+		:expr_(expr), stmt_(stmt) {
+	}
+
+	//!!!!!!!! Node_return_stmt
+	Node_return_stmt::Node_return_stmt(Node_expression* expr)
+		:expr_(expr) {
+	}
+
+	//!!!!!!!! Node_expression
+	
 } // namespace cminus
 
