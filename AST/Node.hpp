@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 #endif
-// Working on fun_decl
+/* TODO: dealllocator generator */
 // liangchan xing class generator
 namespace cminus {
 
@@ -87,7 +87,9 @@ class Node_declaration_list : public Node {
 		void generate(void);
 		~Node_declaration_list() noexcept(true) {}
 	private:
+		// point to first element
 		Node_declaration* first;
+		// point to last element
 		Node_declaration* last;
 };
 
@@ -180,9 +182,10 @@ class Node_param : public Node {
 class Node_statement : public Node {
 	public:
 		Node_statement();
-		void generate() {}
 		virtual ~Node_statement() {}
+		Node_statement* next() {return next_;}
 		void setNext(Node_statement* next) ;
+		void generate() = 0;
 	private:
 		Node_statement* next_;
 };
@@ -190,8 +193,8 @@ class Node_statement : public Node {
 class Node_compound_stmt : public Node_statement {
 	public:
 		explicit Node_compound_stmt(Node_local_declarations* , Node_statement_list*);
-		void generate() {}
 		~Node_compound_stmt() = default;
+		void generate();
 	private:
 		Node_local_declarations* local_dec_;
 		Node_statement_list* stmt_;
@@ -201,8 +204,8 @@ class Node_local_declarations : public Node {
 	public:
 		Node_local_declarations(Node_local_declarations*, Node_var_declaration*);
 		Node_local_declarations() {}
-		void generate() {}
 		virtual ~Node_local_declarations() = default;
+		void generate();
 	private:
 		std::vector<Node_var_declaration*> list_;
 };
@@ -212,7 +215,7 @@ class Node_statement_list : public Node {
 		Node_statement_list(Node_statement_list* state_list,Node_statement* state);
 		Node_statement_list();
 		~Node_statement_list() = default;
-		void generate() {}
+		void generate();
 	private:
 		Node_statement* first;
 		Node_statement* last;
@@ -222,6 +225,7 @@ class Node_expression_stmt : public Node_statement {
 	public:
 		Node_expression_stmt(Node_expression* expr);
 		~Node_expression_stmt() {}
+		void generate();
 	private:
 		Node_expression* expr_;
 };
@@ -231,6 +235,7 @@ class Node_selection_stmt : public Node_statement {
 		Node_selection_stmt(Node_expression* expr,Node_statement* stmt1, bool else_);
 		Node_selection_stmt(Node_expression* expr,Node_statement* stmt1, Node_statement* stmt2, bool else_);
 		~Node_selection_stmt() {}
+		void generate();
 	private:
 		Node_expression* expr_;
 		Node_statement* stmt1_;
@@ -242,6 +247,7 @@ class Node_iteration_stmt : public Node_statement {
 	public:
 		Node_iteration_stmt(Node_expression* expr_,Node_statement* stmt);
 		~Node_iteration_stmt() {}
+		void generate();
 	private:
 		Node_expression* expr_;
 		Node_statement* stmt_;
@@ -251,6 +257,7 @@ class Node_return_stmt : public Node_statement {
 	public:
 		Node_return_stmt(Node_expression* expression);
 		Node_return_stmt() :expr_(NULL) {}
+		void generate();
 	private:
 		Node_expression* expr_;
 };
@@ -259,10 +266,10 @@ class Node_expression : public Node {
 	public:
 		Node_expression(Node_var* var,Node_expression* expr) :var_(var), expr_(expr), sim_expr_(NULL) {}
 		Node_expression(Node_simple_expression* sim_expr)
-			:expr_(NULL), sim_expr_(sim_expr) {
+			:var_(NULL), expr_(NULL), sim_expr_(sim_expr) {
 			}
 		~Node_expression() {}
-		void generate() {}
+		void generate();
 	private:
 		Node_var* var_;
 		Node_expression* expr_;
@@ -273,7 +280,7 @@ class Node_var : public Node {
 	public:
 		Node_var(const char* id) :id_(strdup_(id)), expr_(NULL) {}
 		Node_var(const char* id,Node_expression* expr) :id_(strdup_(id)), expr_(expr) {}
-		void generate() {}
+		void generate();
 		~Node_var() {}
 	private:
 		char* id_;
@@ -289,7 +296,7 @@ class Node_simple_expression : public Node {
 			:add1_(add), add2_(NULL) {}
 
 		~Node_simple_expression() {}
-		void generate() {}
+		void generate();
 	private:
 		Node_additive_expression* add1_;
 		cm_relops relop_;
@@ -305,7 +312,7 @@ class Node_additive_expression : public Node {
 
 		~Node_additive_expression() {}
 
-		void generate() {}
+		void generate();
 	private:
 		Node_additive_expression* add_;
 		cm_ops op_;
@@ -318,7 +325,7 @@ class Node_term : public Node {
 			:term_(term), op_(op), factor_(factor) {}
 		Node_term(Node_factor* factor) :term_(NULL), factor_(factor) {}
 		virtual ~Node_term() {}
-		void generate() {}
+		void generate();
 	private:
 		Node_term* term_;
 		cm_ops op_;
@@ -336,7 +343,7 @@ class Node_factor : public Node {
 		Node_factor(cm_int_type num)
 			:type(t_num) { u.num_ = num ;}
 		virtual ~Node_factor() {}
-		void generate() {}
+		void generate();
 	private:
 		enum {t_expression, t_var, t_call, t_num} type;
 		union {
@@ -352,7 +359,7 @@ class Node_call : public Node {
 		Node_call(const char* id, Node_args* args)
 			:id_(strdup_(id)), args_(args) {}
 		~Node_call() {}
-		void generate() {}
+		void generate();
 	private:
 		char* id_;
 		Node_args* args_;
@@ -362,7 +369,7 @@ class Node_args : public Node {
 	public:
 		Node_args(Node_arg_list* arg_list) :arg_list_(arg_list) {}
 		~Node_args() {}
-		void generate() {}
+		void generate();
 	private:
 		Node_arg_list* arg_list_;
 };
@@ -378,7 +385,7 @@ class Node_arg_list : public Node {
 			vector_expr_.push_back(expression);
 		}
 
-		void generate() {}
+		void generate();
 		~Node_arg_list() {}
 	private:
 		std::vector<Node_expression*> vector_expr_;

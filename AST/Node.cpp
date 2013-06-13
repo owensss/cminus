@@ -1,32 +1,89 @@
 #include "Node.hpp"
 #include <cstring>
-#include <iostream>
+#include <fstream>
 
 
 //!!!!!!!! Node_program
 namespace cminus {
-#ifdef DEBUG
-	using std::cerr;
 	using std::endl;
+	std::fstream xml_dump;
 	struct _ {
 		_() {
-			freopen("dump.txt", "w", stderr);
+			xml_dump.open("dump.xml", std::ios_base::out);
 		}
 	}_;
 
 	void dump_type(cm_type type_) {
-		cerr << "<type>" << type_ << "</type>\n";
+		xml_dump << "<type>";
+		switch (type_ ) {
+			case CM_INT:
+				xml_dump << "int";
+				break;
+			case CM_VOID:
+				xml_dump << "void";
+				break;
+			case CM_INT_ARRAY:
+				xml_dump << "array";
+				break;
+		}
+		xml_dump << "</type>\n";
 	}
 
 	void dump_id(const char* id) {
-		cerr << "<id>" << id << "</id>\n";
+		xml_dump << "<id>" << id << "</id>\n";
 	}
 
 	void dump_array(cm_size_type size) {
-		cerr << "<size>size</size>\n";
+		xml_dump << "<size>" << size << "</size>\n";
 	}
-#endif
 
+	void dump_relop(cm_relops relop) {
+		xml_dump << "<relop>";
+		switch (relop) {
+			case cm_gt:
+				xml_dump << ">";
+				break;
+			case cm_lt:
+				xml_dump << "<";
+				break;
+			case cm_ge:
+				xml_dump << ">=";
+				break;
+			case cm_le:
+				xml_dump << "<=";
+				break;
+			case cm_equ:
+				xml_dump << "==";
+				break;
+			case cm_ueq:
+				xml_dump << "!=";
+				break;
+		}
+		xml_dump << "</relop>\n";
+	}
+
+	void dump_ops(cm_ops op) {
+		xml_dump << "<op>";
+		switch (op) {
+			case cm_plus:
+				xml_dump << "+";
+				break;
+			case cm_minus:
+				xml_dump << "-";
+				break;
+			case cm_multi:
+				xml_dump << "*";
+				break;
+			case cm_div:
+				xml_dump << "/";
+				break;
+		}
+		xml_dump << "</op>\n";
+	}
+
+	void dump_num(cm_int_type num) {
+		xml_dump << "<num>" << num << "</num>\n";
+	}
 
 	char* strdup_(const char* str) {
 		size_t size = strlen(str);
@@ -42,12 +99,12 @@ namespace cminus {
 
 	}
 
-	// genrate the intermedia code
+	// generate the intermedia code
 	void Node_program::generate(void) {
 		// call child
-		cerr << "<Node_program>\n";
+		xml_dump << "<Node_program>\n";
 		child->generate();
-		cerr << "</Node_program>\n";
+		xml_dump << "</Node_program>\n";
 	}
 
 	Node_program::~Node_program(void) noexcept(true) {
@@ -69,7 +126,7 @@ namespace cminus {
 	}
 
 	void Node_declaration_list::Node_declaration_list::generate(void) {
-		cerr << "<Node_declaration_list>\n";
+		xml_dump << "<Node_declaration_list>\n";
 		if (first != NULL) {
 			for (auto iter = first; iter != last; iter=iter->next()) {
 				iter->generate();
@@ -77,7 +134,7 @@ namespace cminus {
 		}
 		if (last != NULL && first != last) 
 			last->generate();
-		cerr << "</Node_declaration_list>\n";
+		xml_dump << "</Node_declaration_list>\n";
 	}
 	//!!!!!!!! Node_declaration
 	void Node_declaration::setNext(Node_declaration* Next) {
@@ -85,9 +142,9 @@ namespace cminus {
 	}
 
 	void Node_declaration::generate(void) {
-		cerr << "<Node_declaration>\n";
-		cerr << "should be invalid\n";
-		cerr << "</Node_declaration>\n";
+		xml_dump << "<Node_declaration>\n";
+		xml_dump << "should be invalid\n";
+		xml_dump << "</Node_declaration>\n";
 	}
 	//!!!!!!!! Node_var_declaration
 	Node_var_declaration::Node_var_declaration(cm_type type, const char* id)
@@ -100,13 +157,13 @@ namespace cminus {
 	}
 	
 	void Node_var_declaration::generate() {
-		cerr << "<Node_var_declaration>\n";
+		xml_dump << "<Node_var_declaration>\n";
 		dump_type(type_);
 		dump_id(id_);
 		if (type_ == CM_INT_ARRAY) {
 			dump_array(array_size_);
 		}
-		cerr << "</Node_var_declaration>\n";
+		xml_dump << "</Node_var_declaration>\n";
 	}
 	//!!!!!!!! Node_fun_declaration
 	Node_fun_declaration::Node_fun_declaration(cm_type type, const char* id, Node_params* params, Node_compound_stmt* compound)
@@ -116,12 +173,12 @@ namespace cminus {
 	}
 
 	void Node_fun_declaration::generate() {
-		cerr << "<Node_fun_declaration>\n";
+		xml_dump << "<Node_fun_declaration>\n";
 		dump_type(type_);
 		dump_id(id_);
 		params_->generate();
 		compound_->generate();
-		cerr << "</Node_fun_declaration>\n";
+		xml_dump << "</Node_fun_declaration>\n";
 	}
 	//!!!!!!!! Node_params
 	Node_params::Node_params(void) :list_(NULL){}
@@ -129,9 +186,9 @@ namespace cminus {
 	}
 	
 	void Node_params::generate(void) {
-		cerr << "<Node_params>\n";
-		list_->generate();
-		cerr << "</Node_params>\n";
+		xml_dump << "<Node_params>\n";
+		if (list_) list_->generate();
+		xml_dump << "</Node_params>\n";
 	}
 	//!!!!!!!! Node_param_list
 	Node_param_list::Node_param_list(Node_param* param)
@@ -146,7 +203,7 @@ namespace cminus {
 	}
 
 	void Node_param_list::generate() {
-		cerr << "<Node_param_list>\n";
+		xml_dump << "<Node_param_list>\n";
 		if (first != NULL) {
 			for (auto iter = first; iter != last; iter=iter->next()) {
 				iter->generate();
@@ -154,7 +211,7 @@ namespace cminus {
 		}
 		if (last != NULL && first != last) 
 			last->generate();
-		cerr << "</Node_param_list>\n";
+		xml_dump << "</Node_param_list>\n";
 	}
 	//!!!!!!!! Node_param
 	Node_param::Node_param(cm_type type, const char* id)
@@ -163,10 +220,10 @@ namespace cminus {
 	}
 
 	void Node_param::generate() {
-		cerr << "<Node_param>\n";
+		xml_dump << "<Node_param>\n";
 		dump_type(type_);
 		dump_id(id_);
-		cerr << "</Node_param>\n";
+		xml_dump << "</Node_param>\n";
 	}
 	//!!!!!!!! Node_compound_stmt
 	Node_compound_stmt::Node_compound_stmt(Node_local_declarations* local_dec, Node_statement_list* stmt)
@@ -174,12 +231,25 @@ namespace cminus {
 
 	}
 
+	void Node_compound_stmt::generate(void) {
+		xml_dump << "<Node_compound_stmt>\n";
+		if (local_dec_ != NULL) local_dec_->generate();
+		if (stmt_ != NULL) stmt_->generate();
+		xml_dump << "</Node_compound_stmt>\n";
+	}
 	//!!!!!!!!! Node_local_declaratin
 	Node_local_declarations::Node_local_declarations(Node_local_declarations* local, Node_var_declaration* var) {
 		list_ = std::move(local->list_);
 		list_.push_back(var);
 	}
-
+	
+	void Node_local_declarations::generate() {
+		xml_dump << "<Node_local_declarations>\n";
+		for (auto& l : list_) {
+			l->generate();
+		}
+		xml_dump << "</Node_local_declarations>\n";
+	}
 	//!!!!!!!!! Node_statement_list
 	Node_statement_list::Node_statement_list(Node_statement_list* state_list, Node_statement* state) {
 		if (state_list->first == NULL && state_list->last == NULL) {
@@ -199,6 +269,17 @@ namespace cminus {
 
 	}
 
+	void Node_statement_list::generate(void) {
+		xml_dump << "<Node_statement_list>\n";
+		if (first != NULL) {
+			for (auto iter = first; iter != last; iter=iter->next()) {
+				iter->generate();
+			}
+		}
+		if (last != NULL && first != last) 
+			last->generate();
+		xml_dump << "</Node_statement_list>\n";
+	}
 	//!!!!!!!!! Node_statement
 	Node_statement::Node_statement(void)
 		:next_(NULL) {
@@ -209,12 +290,23 @@ namespace cminus {
 		next_ = next;
 	}
 
-	//!!!!!!!! Node_expression_stmt
+	void Node_statement::generate() {
+		xml_dump << "<Node_statement>\n";
+		xml_dump << "should be invalid\n";
+		xml_dump << "</Node_statement>\n";
+	}
+	//!!!!!!!!! Node_expression_stmt
 	Node_expression_stmt::Node_expression_stmt(Node_expression* expr)
 		:expr_(expr) {
 	}
 
-	//!!!!!!!! Node_selection_stmt
+	void Node_expression_stmt::generate(void) {
+		xml_dump << "<Node_expression_stmt>\n";
+		expr_->generate();
+		xml_dump << "</Node_expression_stmt>\n";
+	}
+
+	//!!!!!!!!! Node_selection_stmt
 	Node_selection_stmt::Node_selection_stmt(Node_expression* expr, Node_statement* stmt1, bool else__)
 		:expr_(expr), stmt1_(stmt1), stmt2_(NULL), else_(else__) {
 	}
@@ -224,17 +316,121 @@ namespace cminus {
 	{
 	}
 
-	//!!!!!!!! Node_iteration_stmt
+	void Node_selection_stmt::generate() {
+		xml_dump << "<Node_selection_stmt>\n";
+		expr_->generate();
+		stmt1_->generate();
+		if (else_) stmt2_->generate();
+		xml_dump << "</Node_selection_stmt>\n";
+	}
+	//!!!!!!!!! Node_iteration_stmt
 	Node_iteration_stmt::Node_iteration_stmt(Node_expression* expr, Node_statement* stmt)
 		:expr_(expr), stmt_(stmt) {
 	}
 
-	//!!!!!!!! Node_return_stmt
+	void Node_iteration_stmt::generate() {
+		xml_dump << "<Node_iteration_stmt>\n";
+		expr_->generate();
+		stmt_->generate();
+		xml_dump << "</Node_iteration_stmt>\n";
+	}
+	//!!!!!!!!! Node_return_stmt
 	Node_return_stmt::Node_return_stmt(Node_expression* expr)
 		:expr_(expr) {
 	}
 
-	//!!!!!!!! Node_expression
-	
+	void Node_return_stmt::generate() {
+		xml_dump << "<Node_return_stmt>\n";
+		if (expr_) expr_->generate();
+		xml_dump << "</Node_return_stmt>\n";
+	}
+	//!!!!!!!!! Node_expression
+	void Node_expression::generate() {
+		xml_dump << "<Node_expression>\n";
+		if (var_) var_->generate();
+		if (expr_) expr_->generate();
+		if (sim_expr_) sim_expr_->generate();
+		xml_dump << "</Node_expression>\n";
+	}
+
+	//!!!!!!!!! Node_var
+	void Node_var::generate() {
+		xml_dump << "<Node_var>\n";
+		dump_id(id_);
+		if (expr_) expr_->generate();
+		xml_dump << "</Node_var>\n";
+	}
+	//!!!!!!!!! Node_simple_expression
+	void Node_simple_expression::generate() {
+		xml_dump << "<Node_simple_expression>\n";
+		add1_->generate();
+		if (add2_ != NULL) {
+			dump_relop(relop_);
+			add2_->generate();
+		}
+		xml_dump << "</Node_simple_expression>\n";
+	}
+	//!!!!!!!!! Node_additive_expression
+	void Node_additive_expression::generate() {
+		xml_dump << "<Node_additive_expression>\n";
+		if (add_) {
+			add_->generate();
+			dump_ops(op_);
+		}
+		term_->generate();
+		xml_dump << "</Node_additive_expression>\n";
+	}
+	//!!!!!!!!! Node_term
+	void Node_term::generate() {
+		xml_dump << "<Node_term>\n";
+		if (term_ != NULL) {
+			term_->generate();
+			dump_ops(op_);
+		}
+		factor_->generate();
+		xml_dump << "</Node_term>\n";
+	}
+	//!!!!!!!!! Node_factor
+	void Node_factor::generate() {
+		xml_dump << "<Node_factor>\n";
+		switch (type) {
+			case t_expression:
+				u.expr_->generate();
+				break;
+			case t_var:
+				u.var_->generate();
+				break;
+			case t_call:
+				u.call_->generate();
+				break;
+			case t_num:
+				dump_num(u.num_);
+				break;
+		}
+		xml_dump << "</Node_factor>\n";
+	}
+
+	//!!!!!!!!! Node_call
+	void Node_call::generate() {
+		xml_dump << "<Node_call>\n";
+		dump_id(id_);
+		args_->generate();
+		xml_dump << "</Node_call>\n";
+	}
+	//!!!!!!!!! Node_args
+	void Node_args::generate() {
+		xml_dump << "<Node_args>\n";
+		if (arg_list_) 
+			arg_list_->generate();
+		xml_dump << "</Node_args>\n";
+	}
+	//!!!!!!!!! Node_arg_list
+	void Node_arg_list::generate() {
+		xml_dump << "<Node_arg_list>\n";
+		for (auto& ve : vector_expr_) {
+			ve->generate();
+		}
+		xml_dump << "</Node_arg_list>\n";
+	}
 } // namespace cminus
 
