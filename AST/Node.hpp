@@ -3,6 +3,13 @@
 #include "include/cm_base.h"
 #include <vector>
 
+#define DEBUG
+#ifdef DEBUG
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+
+#endif
 // Working on fun_decl
 // liangchan xing class generator
 namespace cminus {
@@ -60,7 +67,7 @@ class Node_program : public Node {
 	public:
 		Node_program() = delete;
 		explicit Node_program(Node_declaration_list* dec_list);
-		void generate(void);
+		virtual void generate(void);
 		~Node_program() noexcept(true);
 	private:
 		Node_declaration_list* child;
@@ -77,7 +84,7 @@ class Node_declaration_list : public Node {
 		explicit Node_declaration_list(Node_declaration_list* list, Node_declaration* append);
 		explicit Node_declaration_list(Node_declaration* node);
 		Node_declaration* next(void) {return last;}
-		void generate(void) {}
+		void generate(void);
 		~Node_declaration_list() noexcept(true) {}
 	private:
 		Node_declaration* first;
@@ -96,7 +103,7 @@ class Node_declaration : public Node {
 		void setNext(Node_declaration* Next);
 		virtual ~Node_declaration(void) {}
 		Node_declaration* next(void) {return next_;}
-		void generate(void) {}
+		virtual void generate(void);
 		
 	private:
 		Node_declaration* next_;
@@ -113,6 +120,7 @@ class Node_var_declaration : public Node_declaration {
 		Node_var_declaration() = delete;
 		explicit Node_var_declaration(cm_type type, const char* id);
 		explicit Node_var_declaration(cm_type type, const char* id, cm_size_type array_size);
+		void generate();
 	private:
 		cm_type type_;
 		char* id_;
@@ -123,7 +131,7 @@ class Node_fun_declaration : public Node_declaration {
 	public:
 		Node_fun_declaration() = delete;
 		explicit Node_fun_declaration(cm_type type, const char* id, Node_params* params, Node_compound_stmt* compound);
-		void generate() {}
+		void generate();
 		~Node_fun_declaration() = default;
 	private:
 		cm_type type_;
@@ -136,7 +144,7 @@ class Node_params : public Node {
 	public:
 		explicit Node_params(void); // no params
 		explicit Node_params(Node_param_list* list);
-		void generate(void) {}
+		void generate(void);
 		~Node_params() = default;
 	private:
 		Node_param_list* list_;
@@ -147,7 +155,7 @@ class Node_param_list : public Node {
 		explicit Node_param_list(Node_param* param);
 		explicit Node_param_list(Node_param_list* list, Node_param* append);
 		Node_param* next();
-		void generate() {}
+		void generate();
 		~Node_param_list() = default;
 	private:
 		Node_param* first;
@@ -159,7 +167,8 @@ class Node_param : public Node {
 	public:
 		explicit Node_param(cm_type type, const char* id);
 		void setNext(Node_param* next) {next_ = next;}
-		void generate() {}
+		Node_param* next(void) {return next_;}
+		void generate();
 		~Node_param() = default;
 	private:
 		Node_param* next_;

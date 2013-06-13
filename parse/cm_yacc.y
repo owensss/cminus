@@ -90,7 +90,7 @@ using namespace cminus;
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 %%
-program: declaration_list {$$ = new Node_program($1);}
+program: declaration_list {$$ = new Node_program($1); $$->generate();}
 			;
 
 declaration_list: declaration_list declaration { $$ = new Node_declaration_list($1, $2); }
