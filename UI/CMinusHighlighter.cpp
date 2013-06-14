@@ -8,7 +8,6 @@ CMinusHighlighter::CMinusHighlighter(QObject *parent) :
 }
 
 void CMinusHighlighter::highlightBlock(const QString &text) {
-    qDebug() << "called";
     QTextCharFormat keywordFormat;
 
     keywordFormat.setFontWeight(QFont::Bold);
