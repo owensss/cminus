@@ -65,11 +65,11 @@ program: declaration_list
  */
 class Node_program : public Node {
 	public:
-		Node_program() = delete;
 		explicit Node_program(Node_declaration_list* dec_list);
 		virtual void generate(void);
-		~Node_program() noexcept(true);
+		~Node_program() ;
 	private:
+		Node_program() ; // delete
 		Node_declaration_list* child;
 };
 
@@ -80,13 +80,13 @@ declaration_list: declaration_list declaration
 */
 class Node_declaration_list : public Node {
 	public:
-		Node_declaration_list() = delete;
 		explicit Node_declaration_list(Node_declaration_list* list, Node_declaration* append);
 		explicit Node_declaration_list(Node_declaration* node);
 		Node_declaration* next(void) {return last;}
 		void generate(void);
-		~Node_declaration_list() noexcept(true) {}
+		~Node_declaration_list() {}
 	private:
+		Node_declaration_list() ;// = delete;
 		// point to first element
 		Node_declaration* first;
 		// point to last element
@@ -119,23 +119,23 @@ var_declaration: type_specifier ID ';'
 */
 class Node_var_declaration : public Node_declaration {
 	public:
-		Node_var_declaration() = delete;
 		explicit Node_var_declaration(cm_type type, const char* id);
 		explicit Node_var_declaration(cm_type type, const char* id, cm_size_type array_size);
 		void generate();
 	private:
 		cm_type type_;
+		Node_var_declaration() ; // = delete;
 		char* id_;
 		cm_size_type array_size_;
 };
 
 class Node_fun_declaration : public Node_declaration {
 	public:
-		Node_fun_declaration() = delete;
 		explicit Node_fun_declaration(cm_type type, const char* id, Node_params* params, Node_compound_stmt* compound);
 		void generate();
-		~Node_fun_declaration() = default;
+		~Node_fun_declaration() {}
 	private:
+		Node_fun_declaration() ; // = delete;
 		cm_type type_;
 		const char* id_;
 		Node_params* params_;
@@ -147,7 +147,7 @@ class Node_params : public Node {
 		explicit Node_params(void); // no params
 		explicit Node_params(Node_param_list* list);
 		void generate(void);
-		~Node_params() = default;
+		~Node_params() {} // = default;
 	private:
 		Node_param_list* list_;
 };
@@ -158,7 +158,7 @@ class Node_param_list : public Node {
 		explicit Node_param_list(Node_param_list* list, Node_param* append);
 		Node_param* next();
 		void generate();
-		~Node_param_list() = default;
+		~Node_param_list() {} // = default;
 	private:
 		Node_param* first;
 		Node_param* last;
@@ -171,7 +171,7 @@ class Node_param : public Node {
 		void setNext(Node_param* next) {next_ = next;}
 		Node_param* next(void) {return next_;}
 		void generate();
-		~Node_param() = default;
+		~Node_param() {} // = default;
 	private:
 		Node_param* next_;
 		cm_type type_;
@@ -193,7 +193,7 @@ class Node_statement : public Node {
 class Node_compound_stmt : public Node_statement {
 	public:
 		explicit Node_compound_stmt(Node_local_declarations* , Node_statement_list*);
-		~Node_compound_stmt() = default;
+		~Node_compound_stmt() {} // = default;
 		void generate();
 	private:
 		Node_local_declarations* local_dec_;
@@ -204,7 +204,7 @@ class Node_local_declarations : public Node {
 	public:
 		Node_local_declarations(Node_local_declarations*, Node_var_declaration*);
 		Node_local_declarations() {}
-		virtual ~Node_local_declarations() = default;
+		virtual ~Node_local_declarations() {} // = default;
 		void generate();
 	private:
 		std::vector<Node_var_declaration*> list_;
@@ -214,7 +214,7 @@ class Node_statement_list : public Node {
 	public:
 		Node_statement_list(Node_statement_list* state_list,Node_statement* state);
 		Node_statement_list();
-		~Node_statement_list() = default;
+		~Node_statement_list() {} // = default;
 		void generate();
 	private:
 		Node_statement* first;
