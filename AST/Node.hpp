@@ -45,11 +45,46 @@ class Node_call;
 class Node_args; // +
 class Node_arg_list;
 
+template <typename T>
+struct raw_token {
+	T value;
+	int row;
+	int col;
+
+	void setLocation(int row__, int col__) {row = row__; col = col__;}
+};
+
+template <typename T>
+class raw_type {
+	public:
+		raw_type(const raw_token<T>& token) {
+			value = token.value;
+			col_ = token.col;
+			row_ = token.row;
+		}
+		raw_type() {}
+
+		explicit raw_type(T value_) {value = value_;}
+		operator T&() {return value;}
+		// T& operator=(const T& value) {value_ = value; return value_;}
+		raw_type<T>& operator=(const raw_type<T>& v) {value = v.value; row_ = v.row_; col_ = v.col_; return *this;}
+		void setLocation(int row__, int col__) {row_ = row__; col_ = col__;}
+		int row() const {return row_;}
+		int col() const {return col_;}
+	public:
+		T value;
+	private:
+		int row_;
+		int col_;
+};
+
 class Node {
 	public:
 		// generate the intermedia code
 		virtual void generate(void) = 0;
-		void setLocation(int row, int col) {row_ = row; col_ = col;}
+		void setLocation(int row__, int col__) {row_ = row__; col_ = col__;}
+		int row() const {return row_;}
+		int col() const {return col_;}
 		// next node
 		virtual ~Node() {}
 		explicit Node() {}
@@ -57,10 +92,6 @@ class Node {
 		int row_;
 		int col_;
 		Node& operator = (const Node&);
-};
-
-template <typename T>
-struct Raw_Type {
 };
 
 /*
@@ -126,14 +157,14 @@ var_declaration: type_specifier ID ';'
 */
 class Node_var_declaration : public Node_declaration {
 	public:
-		explicit Node_var_declaration(cm_type type, const char* id);
-		explicit Node_var_declaration(cm_type type, const char* id, cm_size_type array_size);
+		explicit Node_var_declaration(raw_type<cm_type> type, raw_type<char*> id);
+		explicit Node_var_declaration(raw_type<cm_type> type, raw_type<char*> id, raw_type<cm_size_type> array_size);
 		void generate();
 	private:
-		cm_type type_;
+		raw_type<cm_type> type_;
 		Node_var_declaration() ; // = delete;
-		char* id_;
-		cm_size_type array_size_;
+		raw_type<char*> id_;
+		raw_type<cm_size_type> array_size_;
 };
 /*
 //rule related
@@ -141,13 +172,13 @@ fun_declaration: type_specifier ID '(' params ')' compound_stmt
 */
 class Node_fun_declaration : public Node_declaration {
 	public:
-		explicit Node_fun_declaration(cm_type type, const char* id, Node_params* params, Node_compound_stmt* compound);
+		explicit Node_fun_declaration(raw_type<cm_type> type, raw_type<char*> id, Node_params* params, Node_compound_stmt* compound);
 		void generate();
 		~Node_fun_declaration() {}
 	private:
 		Node_fun_declaration() ; // = delete;
-		cm_type type_;
-		const char* id_;
+		raw_type<cm_type> type_;
+		raw_type<char*> id_;
 		Node_params* params_;
 		Node_compound_stmt* compound_;
 };
@@ -187,15 +218,15 @@ param: type_specifier ID
 */
 class Node_param : public Node {
 	public:
-		explicit Node_param(cm_type type, const char* id);
+		explicit Node_param(raw_type<cm_type> type, raw_type<char*> id);
 		void setNext(Node_param* next) {next_ = next;}
 		Node_param* next(void) {return next_;}
 		void generate();
 		~Node_param() {} // = default;
 	private:
 		Node_param* next_;
-		cm_type type_;
-		char* id_;
+		raw_type<cm_type> type_;
+		raw_type<char*> id_;
 };
 
 // pre requ for compound_stmt
@@ -324,12 +355,12 @@ var: 		ID {$$ = new Node_var($1);}
 */
 class Node_var : public Node {
 	public:
-		Node_var(const char* id) :id_(strdup_(id)), expr_(NULL) {}
-		Node_var(const char* id,Node_expression* expr) :id_(strdup_(id)), expr_(expr) {}
+		Node_var(raw_type<char*> id) :expr_(NULL) {id_ = id; id_.value = strdup_(id.value);}
+		Node_var(raw_type<char*> id,Node_expression* expr) :expr_(expr) {id_ = id; id_.value = strdup_(id.value);}
 		void generate();
 		~Node_var() {}
 	private:
-		char* id_;
+		raw_type<char*> id_;
 		Node_expression* expr_;
 };
 /*
@@ -338,7 +369,7 @@ simple_expression:additive_expression RELOP additive_expression {$$ = new Node_s
 */
 class Node_simple_expression : public Node {
 	public:
-		Node_simple_expression(Node_additive_expression* add1, cm_relops op, Node_additive_expression* add2) 
+		Node_simple_expression(Node_additive_expression* add1, raw_type<cm_relops> op, Node_additive_expression* add2) 
 			:add1_(add1), relop_(op), add2_(add2) {}
 
 		Node_simple_expression(Node_additive_expression* add) 
@@ -348,7 +379,7 @@ class Node_simple_expression : public Node {
 		void generate();
 	private:
 		Node_additive_expression* add1_;
-		cm_relops relop_;
+		raw_type<cm_relops> relop_;
 		Node_additive_expression* add2_;
 };
 /*
@@ -357,7 +388,7 @@ additive_expression: additive_expression addop term {$$ = new Node_additive_expr
  */
 class Node_additive_expression : public Node {
 	public:
-		Node_additive_expression(Node_additive_expression* add, cm_ops op, Node_term* term) 
+		Node_additive_expression(Node_additive_expression* add, raw_type<cm_ops> op, Node_term* term) 
 			:add_(add), op_(op), term_(term) {}
 		
 		Node_additive_expression(Node_term* term) :add_(NULL), term_(term) {}
@@ -367,7 +398,7 @@ class Node_additive_expression : public Node {
 		void generate();
 	private:
 		Node_additive_expression* add_;
-		cm_ops op_;
+		raw_type<cm_ops> op_;
 		Node_term* term_;
 };
 /*
@@ -376,14 +407,14 @@ term: term mulop factor {$$ = new Node_term($1, $2, $3);}
  */
 class Node_term : public Node {
 	public:
-		Node_term(Node_term* term, cm_ops op, Node_factor* factor)
+		Node_term(Node_term* term, raw_type<cm_ops> op, Node_factor* factor)
 			:term_(term), op_(op), factor_(factor) {}
 		Node_term(Node_factor* factor) :term_(NULL), factor_(factor) {}
 		virtual ~Node_term() {}
 		void generate();
 	private:
 		Node_term* term_;
-		cm_ops op_;
+		raw_type<cm_ops> op_;
 		Node_factor* factor_;
 };
 /*
@@ -400,8 +431,8 @@ class Node_factor : public Node {
 			:type(t_var) { u.var_ = var; }
 		Node_factor(Node_call* call)
 			:type(t_call) { u.call_ = call; }
-		Node_factor(cm_int_type num)
-			:type(t_num) { u.num_ = num ;}
+		Node_factor(raw_type<cm_int_type> num)
+			:type(t_num) { u.num_ = new raw_type<cm_int_type>(num);}
 		virtual ~Node_factor() {}
 		void generate();
 	private:
@@ -410,7 +441,7 @@ class Node_factor : public Node {
 			Node_expression* expr_;
 			Node_var* var_;
 			Node_call* call_;
-			cm_int_type num_;
+			raw_type<cm_int_type>* num_;
 		} u;
 };
 /*
@@ -418,12 +449,12 @@ call: ID '(' args ')' {$$ = new Node_call($1, $3);}
 */
 class Node_call : public Node {
 	public:
-		Node_call(const char* id, Node_args* args)
-			:id_(strdup_(id)), args_(args) {}
+		Node_call(raw_type<char*> id, Node_args* args)
+			:args_(args) {id_ = id; id_.value = strdup_(id.value);}
 		~Node_call() {}
 		void generate();
 	private:
-		char* id_;
+		raw_type<char*> id_;
 		Node_args* args_;
 };
 /*

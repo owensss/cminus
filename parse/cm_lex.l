@@ -47,9 +47,10 @@ key_while "while"
 %%
 {num} {
 	TEST_OUT
-	yylval.num = atoi(yytext);
+	yylval.num.value = atoi(yytext);
 	colnum = nextcolnum+1;
 	nextcolnum += yyleng;
+	yylval.num.setLocation(yylineno, colnum);
 	return NUM;
  }
 
@@ -99,7 +100,8 @@ key_while "while"
 	TEST_OUT
 	colnum = nextcolnum+1;
 	nextcolnum += yyleng;
-	yylval.str = strdup(yytext);
+	yylval.str.value = strdup(yytext);
+	yylval.str.setLocation(yylineno, colnum);
 	return ID;
 }
 

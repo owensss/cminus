@@ -46,11 +46,11 @@ using namespace cminus;
 	Node_call*                  node_call;
 	Node_args*                  node_args;
 	Node_arg_list*              node_arg_list;             
-	cm_type                     type;
-	cm_ops                      op;
-	cm_relops                   relop;
-	cm_int_type                 num;
-	char*                       str;
+	raw_token<cm_type>          type;
+	raw_token<cm_ops>           op;
+	raw_token<cm_relops>        relop;
+	raw_token<cm_int_type>      num;
+	raw_token<char*>            str;
 }
 
 %token ELSE IF VOID WHILE
@@ -104,7 +104,6 @@ declaration: var_declaration {$$ = $1;$$->setLocation(yylineno, colnum); }
 			;
 
 var_declaration: type_specifier ID ';' {
-					printf("%d, %s\n", $1, $2);
 					$$ = new Node_var_declaration($1, $2);
 					$$->setLocation(yylineno, colnum); 
 				 }
@@ -114,12 +113,11 @@ var_declaration: type_specifier ID ';' {
 				}
 			;
 
-type_specifier: INT {printf("int\n"); $$ = CM_INT;}
-			| VOID {$$ = CM_VOID;}
+type_specifier: INT { $$.value = CM_INT; $$.setLocation(yylineno, colnum);}
+			| VOID {$$.value = CM_VOID; $$.setLocation(yylineno, colnum);}
 			;
 
 fun_declaration: type_specifier ID '(' params ')' compound_stmt {
-					printf("fun\n");
 					$$ = new Node_fun_declaration($1, $2, $4, $6);
 					$$->setLocation(yylineno, colnum); 
 				 }
@@ -134,7 +132,7 @@ param_list: param_list ',' param {$$ = new Node_param_list($1, $3);$$->setLocati
 			;
 
 param: type_specifier ID {$$ = new Node_param($1, $2);$$->setLocation(yylineno, colnum); }
-			| type_specifier ID '[' ']' {$$ = new Node_param(CM_INT_ARRAY, $2);$$->setLocation(yylineno, colnum); }
+			| type_specifier ID '[' ']' {$$ = new Node_param(raw_token<cm_type>{CM_INT_ARRAY, $1.row, $1.col}, $2);$$->setLocation(yylineno, colnum); }
 			;
 
 compound_stmt:
@@ -183,28 +181,29 @@ simple_expression:additive_expression RELOP additive_expression {$$ = new Node_s
 			| additive_expression {$$ = new Node_simple_expression($1);$$->setLocation(yylineno, colnum); }
 			;
 
-RELOP: GE   {$$ = cm_ge;}
-     | '<'  {$$ = cm_lt;}
-	 | '>'  {$$ = cm_gt;}
-	 | LE   {$$ = cm_le;}
-	 | EQU  {$$ = cm_equ;}
-	 | UEQ  {$$ = cm_ueq;}
+RELOP: GE   {$$.value = cm_ge;$$.setLocation(yylineno, colnum);}
+     | '<'  {$$.value = cm_lt;$$.setLocation(yylineno, colnum);}
+	 | '>'  {$$.value = cm_gt;$$.setLocation(yylineno, colnum);}
+	 | LE   {$$.value = cm_le;$$.setLocation(yylineno, colnum);}
+	 | EQU  {$$.value = cm_equ;$$.setLocation(yylineno, colnum);}
+	 | UEQ  {$$.value = cm_ueq;$$.setLocation(yylineno, colnum);}
 			;
 
 additive_expression: additive_expression addop term {$$ = new Node_additive_expression($1, $2, $3);$$->setLocation(yylineno, colnum); }
 			| term {$$ = new Node_additive_expression($1);$$->setLocation(yylineno, colnum); }
 			;
 
-addop: '+' {$$ = cm_plus;}
-     | '-' {$$ = cm_minus;}
+
+addop: '+' {$$.value = cm_plus;$$.setLocation(yylineno, colnum);}
+     | '-' {$$.value = cm_minus;$$.setLocation(yylineno, colnum);}
 			;
 
 term: term mulop factor {$$ = new Node_term($1, $2, $3);$$->setLocation(yylineno, colnum); }
 			| factor {$$ = new Node_term($1);$$->setLocation(yylineno, colnum); }
 			;
 
-mulop: '*' {$$ = cm_multi;}
-     | '/' {$$ = cm_div;}
+mulop: '*' {$$.value = cm_multi;$$.setLocation(yylineno, colnum);}
+     | '/' {$$.value = cm_div;$$.setLocation(yylineno, colnum);}
 			;
 
 factor: '(' expression ')' {$$ = new Node_factor($2);$$->setLocation(yylineno, colnum); }
@@ -238,14 +237,14 @@ int main (int argc,char** argv) {
 	}
 	else
 	{
+#ifdef LOGICWORLD // note: not work in Linux
 		if(!(yyin=fopen(".\\parse\\yacc_test.txt","r")))
 		{
 			printf("Error:Can't open file %s\n",argv[1]);
 		}
+#endif
 	}
-	if( yyparse() ) {
-		printf("Okey\n");
-	}
+	yyparse();
 }
 
 void yyerror(const char* what) {

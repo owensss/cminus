@@ -14,8 +14,8 @@ namespace cminus {
 		}
 	}_;
 
-	void dump_type(cm_type type_) {
-		xml_dump << "<type>";
+	void dump_type(raw_type<cm_type> type_) {
+		xml_dump << "<type row=\""<<type_.row() << "\" col=\"" << type_.col() << "\">\n";
 		switch (type_ ) {
 			case CM_INT:
 				xml_dump << "int";
@@ -30,15 +30,15 @@ namespace cminus {
 		xml_dump << "</type>\n";
 	}
 
-	void dump_id(const char* id) {
-		xml_dump << "<id>" << id << "</id>\n";
+	void dump_id(raw_type<char*> id) {
+		xml_dump << "<id row=\"" << id.row() << "\" col=\"" << id.col() << "\">" << id << "</id>\n";
 	}
 
-	void dump_array(cm_size_type size) {
+	void dump_array(raw_type<cm_size_type> size) {
 		xml_dump << "<size>" << size << "</size>\n";
 	}
 
-	void dump_relop(cm_relops relop) {
+	void dump_relop(raw_type<cm_relops> relop) {
 		xml_dump << "<relop>";
 		switch (relop) {
 			case cm_gt:
@@ -63,7 +63,7 @@ namespace cminus {
 		xml_dump << "</relop>\n";
 	}
 
-	void dump_ops(cm_ops op) {
+	void dump_ops(raw_type<cm_ops> op) {
 		xml_dump << "<op>";
 		switch (op) {
 			case cm_plus:
@@ -82,7 +82,7 @@ namespace cminus {
 		xml_dump << "</op>\n";
 	}
 
-	void dump_num(cm_int_type num) {
+	void dump_num(raw_type<cm_int_type> num) {
 		xml_dump << "<num>" << num << "</num>\n";
 	}
 
@@ -148,13 +148,15 @@ namespace cminus {
 		xml_dump << "</Node_declaration>\n";
 	}
 	//!!!!!!!! Node_var_declaration
-	Node_var_declaration::Node_var_declaration(cm_type type, const char* id)
+	Node_var_declaration::Node_var_declaration(raw_type<cm_type> type, raw_type<char*> id)
 		:type_(type), array_size_(1) {
-		id_ = strdup_(id);
+		id_ = id;
+		id_.value = strdup_(id.value);
 	}
-	Node_var_declaration::Node_var_declaration(cm_type type, const char* id, cm_size_type array_size)
+	Node_var_declaration::Node_var_declaration(raw_type<cm_type> type, raw_type<char*> id, raw_type<cm_size_type> array_size)
 		:type_(CM_INT_ARRAY), array_size_(array_size) {
-		id_ = strdup_(id);
+		id_ = id;
+		id_.value = strdup_(id.value);
 	}
 	
 	void Node_var_declaration::generate() {
@@ -167,10 +169,11 @@ namespace cminus {
 		xml_dump << "</Node_var_declaration>\n";
 	}
 	//!!!!!!!! Node_fun_declaration
-	Node_fun_declaration::Node_fun_declaration(cm_type type, const char* id, Node_params* params, Node_compound_stmt* compound)
+	Node_fun_declaration::Node_fun_declaration(raw_type<cm_type> type, raw_type<char*> id, Node_params* params, Node_compound_stmt* compound)
 		:type_(type), params_(params), compound_(compound)
 	{
-		id_ = strdup_(id);
+		id_ = id;
+		id_.value = strdup_(id.value);
 	}
 
 	void Node_fun_declaration::generate() {
@@ -215,9 +218,10 @@ namespace cminus {
 		xml_dump << "</Node_param_list>\n";
 	}
 	//!!!!!!!! Node_param
-	Node_param::Node_param(cm_type type, const char* id)
+	Node_param::Node_param(raw_type<cm_type> type, raw_type<char*> id)
 		:next_(NULL), type_(type) {
-			id_ = strdup_(id);
+			id_ = id;
+			id_.value = strdup_(id.value);
 	}
 
 	void Node_param::generate() {
@@ -406,7 +410,7 @@ namespace cminus {
 				u.call_->generate();
 				break;
 			case t_num:
-				dump_num(u.num_);
+				dump_num(*u.num_);
 				break;
 		}
 		xml_dump << "</Node_factor>\n";

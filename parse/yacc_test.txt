@@ -22,8 +22,6 @@ int foo(void) {
 		a;
 	}
 
-	if (   int) 12+b;
-	
 	if (a) 12+b;
 	/* iteration stmt */
 	while (1) a +b;
