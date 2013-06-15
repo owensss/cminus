@@ -219,10 +219,25 @@ arg_list: arg_list ',' expression  {$$ = new Node_arg_list($1, $3);}
 		| expression {$$ = new Node_arg_list($1);}
 		;
 %%
-int main () {
+extern FILE* yyin;
+int main (int argc,char** argv) {
 #ifdef TEST
 	yydebug=1;
 #endif
+	if(argc>1)
+	{
+		if(!(yyin=fopen(argv[1],"r")))
+		{
+			printf("Error:Can't open file %s\n",argv[1]);
+		}
+	}
+	else
+	{
+		if(!(yyin=fopen(".\\parse\\yacc_test.txt","r")))
+		{
+			printf("Error:Can't open file %s\n",argv[1]);
+		}
+	}
 	if( yyparse() ) {
 		printf("Okey\n");
 	}

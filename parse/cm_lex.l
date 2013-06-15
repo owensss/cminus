@@ -13,9 +13,23 @@ YYSTYPE yylval;
 #else
 #define TEST_OUT ;
 #endif
-%}
 
+//Add for Mingw doesn't have such a function.
+//Also it is not a c/c++ standard lib function.
+#ifdef __MINGW32__
+	static char* strdup(const char* str)
+	{
+		int len = strlen(str);
+		char* retStr = (char*)malloc(len+1);
+		strcpy(retStr,str);
+		return retStr;
+	}
+#endif
+
+%}
+%option never-interactive
 %option yylineno
+%option noyywrap
 
 digit [0-9]
 num {digit}+
@@ -114,9 +128,6 @@ key_while "while"
 
 %%
 
-int yywrap() {
-	return 1;
-}
 
 #ifdef TEST
 int main() {
