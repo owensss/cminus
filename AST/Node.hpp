@@ -49,10 +49,13 @@ class Node {
 	public:
 		// generate the intermedia code
 		virtual void generate(void) = 0;
+		void setLocation(int row, int col) {row_ = row; col_ = col;}
 		// next node
 		virtual ~Node() {}
 		explicit Node() {}
 	private:
+		int row_;
+		int col_;
 		Node& operator = (const Node&);
 };
 
