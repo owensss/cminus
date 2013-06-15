@@ -107,7 +107,7 @@ namespace cminus {
 		xml_dump << "</Node_program>\n";
 	}
 
-	Node_program::~Node_program(void) noexcept(true) {
+	Node_program::~Node_program(void) {
 		if (child) delete child;
 	}
 
@@ -128,7 +128,7 @@ namespace cminus {
 	void Node_declaration_list::Node_declaration_list::generate(void) {
 		xml_dump << "<Node_declaration_list>\n";
 		if (first != NULL) {
-			for (auto iter = first; iter != last; iter=iter->next()) {
+			for (Node_declaration* iter = first; iter != last; iter=iter->next()) {
 				iter->generate();
 			}
 		}
@@ -205,7 +205,7 @@ namespace cminus {
 	void Node_param_list::generate() {
 		xml_dump << "<Node_param_list>\n";
 		if (first != NULL) {
-			for (auto iter = first; iter != last; iter=iter->next()) {
+			for (Node_param* iter = first; iter != last; iter=iter->next()) {
 				iter->generate();
 			}
 		}
@@ -244,9 +244,10 @@ namespace cminus {
 	}
 	
 	void Node_local_declarations::generate() {
+		typedef std::vector<Node_var_declaration*> list_type;
 		xml_dump << "<Node_local_declarations>\n";
-		for (auto& l : list_) {
-			l->generate();
+		for (list_type::iterator iter = list_.begin(); iter != list_.end(); ++iter) {
+			(*iter)->generate();
 		}
 		xml_dump << "</Node_local_declarations>\n";
 	}
@@ -272,7 +273,7 @@ namespace cminus {
 	void Node_statement_list::generate(void) {
 		xml_dump << "<Node_statement_list>\n";
 		if (first != NULL) {
-			for (auto iter = first; iter != last; iter=iter->next()) {
+			for (Node_statement* iter = first; iter != last; iter=iter->next()) {
 				iter->generate();
 			}
 		}
@@ -426,9 +427,10 @@ namespace cminus {
 	}
 	//!!!!!!!!! Node_arg_list
 	void Node_arg_list::generate() {
+		typedef std::vector<Node_expression*> list_type;
 		xml_dump << "<Node_arg_list>\n";
-		for (auto& ve : vector_expr_) {
-			ve->generate();
+		for (list_type::iterator iter = vector_expr_.begin(); iter != vector_expr_.end(); ++ iter) {
+			(*iter)->generate();
 		}
 		xml_dump << "</Node_arg_list>\n";
 	}
