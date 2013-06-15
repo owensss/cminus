@@ -7,6 +7,8 @@ using namespace cminus;
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+int colnum = 0; // column number
+static int nextcolnum = 0;
 #ifdef TEST
 YYSTYPE yylval;
 #define TEST_OUT printf("\"%s\"", yytext);
@@ -46,85 +48,114 @@ key_while "while"
 {num} {
 	TEST_OUT
 	yylval.num = atoi(yytext);
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return NUM;
  }
 
 {key_else} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return ELSE;
 }
 
 {key_if} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return IF;
 }
 
 {key_int} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return INT;
 }
 
 {key_return} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return RETURN;
 }
 
 {key_void} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return VOID;
 }
 
 {key_while} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return WHILE;
 }
 
 {id} {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	yylval.str = strdup(yytext);
 	return ID;
 }
 
 [+\-\*/<>=;,()\[\]{}] {
 	TEST_OUT
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return *yytext;
 }
 
 "/*" { // skip comments
 	int done = 0; // false
 	do {
+		nextcolnum+=2; // "/*"
 		char c;
 		// find *
-		while ( (c=yyinput()) != '*');
-		while ( (c=yyinput()) == '*' );
+		while ( (c=yyinput()) != '*') nextcolnum+=1;
+		++nextcolnum; // for the last *
+		while ( (c=yyinput()) == '*' ) nextcolnum +=1;
+		++nextcolnum;
 		if (c == '/') done = 1;
 	} while (! done);
 }
 
 "!=" {
 	TEST_OUT;
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return UEQ;
 }
 
 "<=" {
 	TEST_OUT;
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return LE;
 }
 
 ">=" {
 	TEST_OUT;
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return GE;
 }
 
 "==" {
 	TEST_OUT;
+	colnum = nextcolnum+1;
+	nextcolnum += yyleng;
 	return EQU;
 }
 
 
-"\n" {}
+"\n" {nextcolnum = 0; colnum = 0; /* reset colnum */ }
 
-. {;}
+. {nextcolnum += 1;}
 
 %%
 
@@ -135,3 +166,4 @@ int main() {
 	while (! (yylex() <= 0) );
 }
 #endif
+

@@ -56,6 +56,10 @@ class Node {
 		Node& operator = (const Node&);
 };
 
+template <typename T>
+struct Raw_Type {
+};
+
 /*
 // rule related
 program: declaration_list

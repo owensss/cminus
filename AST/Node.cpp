@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 
+extern void yyerror(const char* what);
 
 //!!!!!!!! Node_program
 namespace cminus {

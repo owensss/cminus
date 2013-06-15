@@ -8,6 +8,7 @@
 #include "include/cm_base.h"
 #include "AST/Node.hpp"
 extern int yylineno;
+extern int colnum;
 int yylex(void);  
 void yyerror(const char* what);
 int yyparse(void);
@@ -244,5 +245,5 @@ int main (int argc,char** argv) {
 }
 
 void yyerror(const char* what) {
-	printf("%d:error:%s\n", yylineno, what);
+	printf("%d:%d:error:%s\n", yylineno, colnum, what);
 }

@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -ly -std=c++0x -lfl
+CFLAGS=-Wall -ly -std=c++0x -std=c++0x -lfl
 INCLUDE=-I..
 PATH+=..
 
