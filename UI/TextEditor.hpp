@@ -16,10 +16,10 @@ class TextEditor : public QWidget
         
     public:
         explicit TextEditor(QWidget *parent = 0);
+        void setDocument(QTextDocument* doc) ;
         ~TextEditor();
-        
-    private slots:
-        void on_textEdit_textChanged();
+    public slots:
+        void rehighlight();
     private:
         Ui::TextEditor *ui;
         QTextDocument* document;

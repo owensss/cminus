@@ -6,7 +6,6 @@ CMinusHighlighter::CMinusHighlighter(QObject *parent) :
     QSyntaxHighlighter(parent)
 {
 }
-
 void CMinusHighlighter::highlightBlock(const QString &text) {
     QTextCharFormat keywordFormat;
 
@@ -22,5 +21,31 @@ void CMinusHighlighter::highlightBlock(const QString &text) {
         setFormat(key_index, length, keywordFormat);
         setFormat(key_index, length, QColor(255, 0, 255));
         key_index = text.indexOf(keyexpr, key_index + length);
+    }
+    // highlight comments
+    QTextCharFormat multiLineCommentFormat;
+    multiLineCommentFormat.setForeground(Qt::blue);
+    QRegExp startExpression("/\\*");
+    QRegExp endExpression("\\*/");
+
+    setCurrentBlockState(0);
+
+    int startIndex = 0;
+    if (previousBlockState() != 1)
+        startIndex = text.indexOf(startExpression);
+
+    while (startIndex >= 0) {
+       int endIndex = text.indexOf(endExpression, startIndex);
+       int commentLength;
+       if (endIndex == -1) {
+           setCurrentBlockState(1);
+           commentLength = text.length() - startIndex;
+       } else {
+           commentLength = endIndex - startIndex
+                           + endExpression.matchedLength();
+       }
+       setFormat(startIndex, commentLength, multiLineCommentFormat);
+       startIndex = text.indexOf(startExpression,
+                                 startIndex + commentLength);
     }
 }

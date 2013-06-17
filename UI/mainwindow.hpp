@@ -2,6 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include "CMinusFiles.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -15,8 +16,12 @@ class MainWindow : public QMainWindow
         explicit MainWindow(QWidget *parent = 0);
         ~MainWindow();
         
-    private:
+private slots:
+    void on_action_Open_triggered();
+
+private:
         Ui::MainWindow *ui;
+        cminus::CMinusFiles files;
 };
 
 #endif // MAINWINDOW_HPP

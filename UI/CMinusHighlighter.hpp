@@ -13,7 +13,7 @@ class CMinusHighlighter : public QSyntaxHighlighter
     signals:
         
     public slots:
-        
+
 };
 
 #endif // CMINUSHIGHLIGHTER_HPP

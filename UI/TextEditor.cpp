@@ -1,6 +1,7 @@
 #include "TextEditor.hpp"
 #include "ui_TextEditor.h"
 #include "CMinusHighlighter.hpp"
+#include <QDebug>
 
 TextEditor::TextEditor(QWidget *parent) :
     QWidget(parent),
@@ -8,9 +9,10 @@ TextEditor::TextEditor(QWidget *parent) :
 {
     ui->setupUi(this);
     document = ui->textEdit->document();
+    highlighter = new CMinusHighlighter(ui->textEdit);
+    highlighter->setDocument(ui->textEdit->document());
     // highlight
-    highlighter = new CMinusHighlighter(ui->textEdit->document());
-    highlighter->setDocument(document);
+
     ui->textEdit->setTabStopWidth(4);
     // tabwidth
     QFont font;
@@ -33,7 +35,13 @@ TextEditor::~TextEditor()
     delete highlighter;
 }
 
-void TextEditor::on_textEdit_textChanged()
-{
+void TextEditor::setDocument(QTextDocument* doc) {
+    document = doc;
+    ui->textEdit->setDocument(doc);
+    highlighter->setDocument(ui->textEdit->document());
+}
 
+void TextEditor::rehighlight() {
+    qDebug() << "rehighlight";
+    highlighter->rehighlight();
 }
