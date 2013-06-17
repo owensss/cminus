@@ -20,7 +20,6 @@ class TextEditor : public QWidget
         
     private slots:
         void on_textEdit_textChanged();
-
     private:
         Ui::TextEditor *ui;
         QTextDocument* document;

@@ -35,5 +35,5 @@ TextEditor::~TextEditor()
 
 void TextEditor::on_textEdit_textChanged()
 {
-    // highlighter->rehighlight();
+
 }
