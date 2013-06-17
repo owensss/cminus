@@ -17,12 +17,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     TextEditor.cpp \
     CMinusHighlighter.cpp \
-    CMinusFiles.cpp
+    CMinusFiles.cpp \
+    CodeEditor.cpp \
+    LineNumberArea.cpp
 
 HEADERS  += mainwindow.hpp \
     TextEditor.hpp \
     CMinusHighlighter.hpp \
-    CMinusFiles.hpp
+    CMinusFiles.hpp \
+    CodeEditor.h \
+    LineNumberArea.h
 
 FORMS    += mainwindow.ui \
     TextEditor.ui
