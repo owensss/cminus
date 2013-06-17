@@ -1,9 +1,9 @@
 CC=g++
-CFLAGS=-Wall -std=c++0x -ly -lfl
+CFLAGS=-Wall -ly -std=c++0x -std=c++0x -lfl
 INCLUDE=-I..
 PATH+=..
 
-yacc_test: cm_lex.cpp cm_yacc.cpp ../AST/Node.cpp
+yacc_test: cm_lex.cpp cm_yacc.cpp ../AST/Node.cpp ../AST/Node.hpp
 	$(CC) -o yacc_test cm_yacc.cpp cm_lex.cpp ../AST/Node.cpp $(CFLAGS) $(INCLUDE)
 
 lex_test: cm_lex.cpp cm_yacc.cpp

@@ -7,6 +7,7 @@ int b;
 int foo(void) {
 	int a;
 	int b;
+	int b;
 	/* expression stmt */
 	a = 11 >= (10*3 + 2/(4+2));
 	/* compound stmt */
