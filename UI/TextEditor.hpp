@@ -21,16 +21,18 @@ class TextEditor : public QWidget
         ~TextEditor();
         cminus::CMinusFiles::iterator current() {return current_;}
     public slots:
+        void undo();
+        void redo();
         void rehighlight();
         void changeCurrent(cminus::CMinusFiles::iterator);
         void changeCurrent(const QModelIndex& idx);
     private:
         void do_setDocument(QTextDocument* doc);
     private:
+        cminus::CMinusFiles* files;
         Ui::TextEditor *ui;
         QTextDocument* document;
         CMinusHighlighter* highlighter;
-        cminus::CMinusFiles* files;
         cminus::CMinusFiles::iterator current_;
 };
 

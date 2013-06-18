@@ -4,8 +4,11 @@
 #include <QDebug>
 
 TextEditor::TextEditor(QWidget *parent) :
-    files(nullptr), QWidget(parent),
-    ui(new Ui::TextEditor)
+    QWidget(parent),files(nullptr),
+    ui(new Ui::TextEditor),
+    document(nullptr),
+    highlighter(nullptr),
+    current_(nullptr)
 {
     ui->setupUi(this);
     document = ui->textEdit->document();
@@ -50,6 +53,7 @@ void TextEditor::rehighlight() {
 void TextEditor::setFiles(cminus::CMinusFiles *files_) {
     files = files_;
     ui->listFile->setModel(files);
+    current_ = files->at(0);
 
     connect(ui->listFile, SIGNAL(clicked(QModelIndex)), this, SLOT(changeCurrent(const QModelIndex&)));
 }
@@ -65,4 +69,12 @@ void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {
 
 void TextEditor::changeCurrent(const QModelIndex &idx) {
     changeCurrent(files->at(idx.row()));
+}
+
+void TextEditor::undo() {
+    ui->textEdit->undo();
+}
+
+void TextEditor::redo() {
+    ui->textEdit->redo();
 }

@@ -7,8 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    if (! files.valid (files.open("..\\parse\\yacc_test.cm")) )
-        qDebug() << "false";
     ui->setupUi(this);
     ui->wEditor->setFiles(&files);
 }
@@ -40,4 +38,14 @@ void MainWindow::on_action_Close_triggered()
 {
     files.close(ui->wEditor->current());
     ui->wEditor->changeCurrent(files.at(0));
+}
+
+void MainWindow::on_action_Undo_triggered()
+{
+    ui->wEditor->undo();
+}
+
+void MainWindow::on_action_Redo_triggered()
+{
+    ui->wEditor->redo();
 }

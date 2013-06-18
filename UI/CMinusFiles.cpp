@@ -25,6 +25,7 @@ namespace cminus {
         file.filename = path;
         file.doc = new QTextDocument(out.readAll());
         file.doc->setModified(false);
+        file.doc->clearUndoRedoStacks();
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
         endInsertRows();
