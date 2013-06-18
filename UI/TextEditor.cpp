@@ -37,6 +37,7 @@ TextEditor::TextEditor(QWidget *parent) :
 TextEditor::~TextEditor()
 {
     delete ui;
+    ui = nullptr;
     delete highlighter;
 }
 
@@ -53,9 +54,12 @@ void TextEditor::rehighlight() {
 void TextEditor::setFiles(cminus::CMinusFiles *files_) {
     files = files_;
     ui->listFile->setModel(files);
+
     current_ = files->at(0);
+    ui->listFile->setCurrentIndex(ui->listFile->model()->index(0, 0));
 
     connect(ui->listFile, SIGNAL(clicked(QModelIndex)), this, SLOT(changeCurrent(const QModelIndex&)));
+    connect(files, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(changeCurrent(QModelIndex, int, int)) );
 }
 
 void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {
@@ -68,13 +72,40 @@ void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {
 }
 
 void TextEditor::changeCurrent(const QModelIndex &idx) {
-    changeCurrent(files->at(idx.row()));
+    qDebug() << "change to " << idx.row();
+    if (idx.row() != ui->listFile->currentIndex().row()) {
+        ui->listFile->setCurrentIndex(idx);
+        changeCurrent(files->at(idx.row()));
+    }
+}
+
+void TextEditor::changeCurrent(const QModelIndex &parent, int begin, int /*end*/) {
+   QModelIndex idx = files->index(begin, 0);
+   changeCurrent(idx);
 }
 
 void TextEditor::undo() {
     ui->textEdit->undo();
+    testModified();
 }
 
 void TextEditor::redo() {
     ui->textEdit->redo();
+    testModified();
+}
+
+/* should do the following:
+ * 1. If modified, add a * after the filename
+ * 2. auto indent
+ */
+void TextEditor::on_textEdit_textChanged()
+{
+    testModified();
+}
+
+void TextEditor::testModified() {
+    if (! ui) return; // workaround for an unbelievable problem 0 0
+    if (ui->listFile->currentIndex().row() == -1) return;
+    QModelIndex index = ui->listFile->currentIndex();
+    ui->listFile->update(index);
 }

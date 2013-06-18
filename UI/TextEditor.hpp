@@ -26,8 +26,13 @@ class TextEditor : public QWidget
         void rehighlight();
         void changeCurrent(cminus::CMinusFiles::iterator);
         void changeCurrent(const QModelIndex& idx);
+        void changeCurrent(const QModelIndex& parent, int begin, int end);
+    private slots:
+        void on_textEdit_textChanged();
     private:
         void do_setDocument(QTextDocument* doc);
+        void testModified(void);
+        void autoIndent();
     private:
         cminus::CMinusFiles* files;
         Ui::TextEditor *ui;

@@ -24,8 +24,9 @@ namespace cminus {
         QTextStream out(&fs);
         file.filename = path;
         file.doc = new QTextDocument(out.readAll());
-        file.doc->setModified(false);
+
         file.doc->clearUndoRedoStacks();
+        file.doc->setModified(false);
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
         endInsertRows();
@@ -81,6 +82,7 @@ namespace cminus {
             int sidx = tmp.lastIndexOf("/");
             int fidx = tmp.lastIndexOf("\\");
             tmp.remove(0, (sidx>fidx?sidx:fidx)+1);
+            if (iter->doc->isModified()) tmp += "*";
             return tmp;
         }
         return QVariant();
