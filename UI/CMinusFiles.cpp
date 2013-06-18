@@ -51,8 +51,9 @@ namespace cminus {
         if (fs.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
             QTextStream in(&fs);
             in << iter->doc->toPlainText();
+            iter->doc->setModified(false);
             return true;
-		}
+        }
 		return false;
 	}
 
@@ -72,6 +73,18 @@ namespace cminus {
         return true;
     }
 
+    CMinusFiles::iterator CMinusFiles::create() {
+        CMinusFile file;
+        file.doc = new QTextDocument();
+
+        file.doc->clearUndoRedoStacks();
+        file.doc->setModified(false);
+        beginInsertRows(QModelIndex(), rowCount(), rowCount());
+        list.push_back(file);
+        endInsertRows();
+        return --list.end(); // last element
+    }
+
     QVariant CMinusFiles::data(const QModelIndex &index, int role) const {
         if (role==Qt::DisplayRole) {
             size_t end = index.row();
@@ -82,6 +95,7 @@ namespace cminus {
             int sidx = tmp.lastIndexOf("/");
             int fidx = tmp.lastIndexOf("\\");
             tmp.remove(0, (sidx>fidx?sidx:fidx)+1);
+            if (tmp == "") tmp = "Untitled";
             if (iter->doc->isModified()) tmp += "*";
             return tmp;
         }
@@ -91,9 +105,9 @@ namespace cminus {
     QVariant CMinusFiles::headerData(int section, Qt::Orientation orientation, int role) const {
         if (role==Qt::DisplayRole) {
             if (orientation == Qt::Horizontal)
-                return tr("打开文件列表");
+                return tr("Opened File List");
             if (orientation == Qt::Vertical)
-                return section;
+                return QVariant();
         }
         return QVariant();
     }

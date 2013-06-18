@@ -33,6 +33,7 @@ class TextEditor : public QWidget
         void do_setDocument(QTextDocument* doc);
         void testModified(void);
         void autoIndent();
+        void reset_tabWidth();
     private:
         cminus::CMinusFiles* files;
         Ui::TextEditor *ui;

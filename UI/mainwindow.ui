@@ -36,8 +36,11 @@
     <addaction name="action_Open"/>
     <addaction name="action_New"/>
     <addaction name="actionSave"/>
-    <addaction name="actionSaveAll"/>
+    <addaction name="actionSaveAs"/>
     <addaction name="action_Close"/>
+    <addaction name="separator"/>
+    <addaction name="actionCloseAll"/>
+    <addaction name="actionSaveAll"/>
     <addaction name="separator"/>
     <addaction name="action_Exit"/>
    </widget>
@@ -128,6 +131,16 @@
   <action name="actionSaveAll">
    <property name="text">
     <string>SaveAll</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>SaveAs</string>
+   </property>
+  </action>
+  <action name="actionCloseAll">
+   <property name="text">
+    <string>CloseAll</string>
    </property>
   </action>
  </widget>

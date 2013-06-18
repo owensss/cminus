@@ -8,7 +8,7 @@
 namespace cminus {
 
 	struct CMinusFile {
-        QString filename;
+        QString filename; // left empty to create new one
         QTextDocument* doc;
 		// bool dirt; // isModified will do the trick
 	};
@@ -31,6 +31,8 @@ namespace cminus {
 		public:
             CMinusFiles(QObject * parent = nullptr) :QAbstractListModel(parent) {}
 			~CMinusFiles();
+            iterator create(void);
+            iterator save_new(const QString& name);
             iterator open(const QString& path);
             bool write(iterator iter);
             bool close(iterator iter);
