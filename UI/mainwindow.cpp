@@ -35,3 +35,9 @@ void MainWindow::on_actionSave_triggered()
 {
     files.write(ui->wEditor->current());
 }
+
+void MainWindow::on_action_Close_triggered()
+{
+    files.close(ui->wEditor->current());
+    ui->wEditor->changeCurrent(files.at(0));
+}

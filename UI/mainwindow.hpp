@@ -21,6 +21,8 @@ private slots:
 
     void on_actionSave_triggered();
 
+    void on_action_Close_triggered();
+
     private:
         Ui::MainWindow *ui;
         cminus::CMinusFiles files;

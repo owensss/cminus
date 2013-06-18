@@ -16,7 +16,7 @@ TextEditor::TextEditor(QWidget *parent) :
     ui->textEdit->setTabStopWidth(4);
     // tabwidth
     QFont font;
-    // font.setFamily("Courier");
+    font.setFamily("Courier");
     font.setStyleHint(QFont::Monospace);
     font.setFixedPitch(true);
     font.setPointSize(10);
@@ -41,7 +41,6 @@ void TextEditor::do_setDocument(QTextDocument* doc) {
     document = doc;
     ui->textEdit->setDocument(doc);
     highlighter->setDocument(ui->textEdit->document());
-    ui->listFile->setModel(files);
 }
 
 void TextEditor::rehighlight() {
@@ -57,6 +56,10 @@ void TextEditor::setFiles(cminus::CMinusFiles *files_) {
 
 void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {
     current_ = iter;
+    if (! files->valid(iter)) {
+        do_setDocument(nullptr);
+        return;
+    }
     do_setDocument(iter->doc);
 }
 

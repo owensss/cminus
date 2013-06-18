@@ -33,6 +33,7 @@ namespace cminus {
 			~CMinusFiles();
             iterator open(const QString& path);
             bool write(iterator iter);
+            bool close(iterator iter);
             iterator at(int index);
             bool valid(const_iterator iter) {if (iter == list.end()) return false; return true;}
 

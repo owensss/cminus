@@ -11,7 +11,7 @@ namespace cminus {
 		}
 	}
 
-    CMinusFiles::iterator CMinusFiles::open(const QString& path, bool set_current) {
+    CMinusFiles::iterator CMinusFiles::open(const QString& path) {
 		CMinusFile file;
         QFile fs(path);
         iterator found = find(path);
@@ -44,14 +44,31 @@ namespace cminus {
 	}
 
     bool CMinusFiles::write(iterator iter) {
-         QFile fs(iter->filename);
-         if (fs.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+        if (iter == list.end()) return false;
+        QFile fs(iter->filename);
+        if (fs.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
             QTextStream in(&fs);
             in << iter->doc->toPlainText();
-			return true;
+            return true;
 		}
 		return false;
 	}
+
+    bool CMinusFiles::close(iterator iter) {
+        if (iter == list.end()) return false;
+        iterator i = list.begin();
+        iterator end = list.end();
+        int count;
+        for (count = 0; i != iter; ++i, ++count) if (i==end) break;
+
+        if (i == list.end()) return false;
+
+        beginRemoveRows(QModelIndex(), count, count);
+        list.erase(iter);
+        endRemoveRows();
+
+        return true;
+    }
 
     QVariant CMinusFiles::data(const QModelIndex &index, int role) const {
         if (role==Qt::DisplayRole) {
