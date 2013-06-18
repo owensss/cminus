@@ -8,7 +8,7 @@
 namespace cminus {
 
 	struct CMinusFile {
-        QFile* fs;
+        QString filename;
         QTextDocument* doc;
 		// bool dirt; // isModified will do the trick
 	};
@@ -31,8 +31,8 @@ namespace cminus {
 		public:
             CMinusFiles(QObject * parent = nullptr) :QAbstractListModel(parent) {}
 			~CMinusFiles();
-            iterator open(const QString& path, bool set_current = true);
-            bool write(const QTextDocument* doc);
+            iterator open(const QString& path);
+            bool write(iterator iter);
             iterator at(int index);
             bool valid(const_iterator iter) {if (iter == list.end()) return false; return true;}
 
@@ -40,9 +40,9 @@ namespace cminus {
 			void close(int id);
 		private:
 
-            iterator find(const QFile* fs) {
+            iterator find(const QString fs) {
                 return find_if(list.begin(), list.end(), [&](const CMinusFile& f)
-                    { if (f.fs == fs) return true;}
+                    { if (f.filename == fs) return true;}
 				);
 			}
             iterator find(const QTextDocument* doc) {

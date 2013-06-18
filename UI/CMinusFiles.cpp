@@ -1,51 +1,52 @@
 #include "CMinusFiles.hpp"
 #include <QTextStream>
+#include <QDebug>
+#include <iostream>
 
 namespace cminus {
 	CMinusFiles::~CMinusFiles() {
 		iterator end = list.end();
 		for ( iterator iter = list.begin(); iter != end; ++iter ) {
-            if (iter->fs->isOpen()) {
-                iter->fs->close();
-                delete iter->fs;
-                delete iter->doc;
-			}
+            delete iter->doc;
 		}
 	}
 
     CMinusFiles::iterator CMinusFiles::open(const QString& path, bool set_current) {
 		CMinusFile file;
-        file.fs = new QFile(path);
-        if (! file.fs->open(QIODevice::ReadWrite | QIODevice::Text)) {
-            delete file.fs;
+        QFile fs(path);
+        iterator found = find(path);
+        if (found != list.end()) return found;
+
+        if (! fs.open(QIODevice::ReadOnly | QIODevice::Text)) {
             return list.end();
 		}
 
-        QTextStream out(file.fs);
-
+        QTextStream out(&fs);
+        file.filename = path;
         file.doc = new QTextDocument(out.readAll());
         file.doc->setModified(false);
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
         endInsertRows();
         return --list.end(); // last element
+        fs.close();
 	}
 
 	void CMinusFiles::writeAll(void) {
         iterator end = list.end();
 		for ( iterator iter = list.begin(); iter != end; ++iter ) {
-            if (iter->fs->isOpen()) {
-                QTextStream in(iter->fs);
+            QFile fs(iter->filename);
+            if (fs.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+                QTextStream in(&fs);
                 in << iter->doc->toPlainText();
-			}
+            }
 		}
 	}
 
-    bool CMinusFiles::write(const QTextDocument* doc) {
-        iterator iter = find(doc);
-		if (iter == list.end()) return false;
-        if (! iter->fs->isOpen()) {
-            QTextStream in(iter->fs);
+    bool CMinusFiles::write(iterator iter) {
+         QFile fs(iter->filename);
+         if (fs.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+            QTextStream in(&fs);
             in << iter->doc->toPlainText();
 			return true;
 		}
@@ -58,7 +59,7 @@ namespace cminus {
             if (end > list.size()) return QVariant();
             const_iterator iter = list.begin();
             for (int i = 0; i < end; ++i) ++iter;
-            QString tmp = iter->fs->fileName();
+            QString tmp = iter->filename;
             int sidx = tmp.lastIndexOf("/");
             int fidx = tmp.lastIndexOf("\\");
             tmp.remove(0, (sidx>fidx?sidx:fidx)+1);

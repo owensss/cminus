@@ -56,6 +56,7 @@ void TextEditor::setFiles(cminus::CMinusFiles *files_) {
 }
 
 void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {
+    current_ = iter;
     do_setDocument(iter->doc);
 }
 

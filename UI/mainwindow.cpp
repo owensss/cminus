@@ -30,3 +30,8 @@ void MainWindow::on_action_Open_triggered()
     // workaroud for rehighlighting
     ui->wEditor->rehighlight();
 }
+
+void MainWindow::on_actionSave_triggered()
+{
+    files.write(ui->wEditor->current());
+}

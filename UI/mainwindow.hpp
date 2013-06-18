@@ -19,7 +19,9 @@ class MainWindow : public QMainWindow
 private slots:
     void on_action_Open_triggered();
 
-private:
+    void on_actionSave_triggered();
+
+    private:
         Ui::MainWindow *ui;
         cminus::CMinusFiles files;
 };
