@@ -13,23 +13,22 @@ namespace cminus {
 		}
 	}
 
-	bool CMinusFiles::open(const QString& path, bool set_current) {
+    CMinusFiles::iterator CMinusFiles::open(const QString& path, bool set_current) {
 		CMinusFile file;
         file.fs = new QFile(path);
         if (! file.fs->open(QIODevice::ReadWrite | QIODevice::Text)) {
             delete file.fs;
-			return false;
+            return list.end();
 		}
 
         QTextStream out(file.fs);
 
         file.doc = new QTextDocument(out.readAll());
         file.doc->setModified(false);
+        beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
-        if (set_current) {
-            current_ = --list.end();
-        }
-        return true;
+        endInsertRows();
+        return --list.end(); // last element
 	}
 
 	void CMinusFiles::writeAll(void) {
@@ -52,5 +51,37 @@ namespace cminus {
 		}
 		return false;
 	}
+
+    QVariant CMinusFiles::data(const QModelIndex &index, int role) const {
+        if (role==Qt::DisplayRole) {
+            size_t end = index.row();
+            if (end > list.size()) return QVariant();
+            const_iterator iter = list.begin();
+            for (int i = 0; i < end; ++i) ++iter;
+            QString tmp = iter->fs->fileName();
+            int sidx = tmp.lastIndexOf("/");
+            int fidx = tmp.lastIndexOf("\\");
+            tmp.remove(0, (sidx>fidx?sidx:fidx)+1);
+            return tmp;
+        }
+        return QVariant();
+    }
+
+    QVariant CMinusFiles::headerData(int section, Qt::Orientation orientation, int role) const {
+        if (role==Qt::DisplayRole) {
+            if (orientation == Qt::Horizontal)
+                return tr("打开文件列表");
+            if (orientation == Qt::Vertical)
+                return section;
+        }
+        return QVariant();
+    }
+
+    CMinusFiles::iterator CMinusFiles::at(int index) {
+        if (index > list.size()) return list.end();
+        iterator iter = list.begin();
+        for (int i = 0; i < index; ++i) ++iter;
+        return iter;
+    }
 }
 

@@ -1,12 +1,16 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    if (! files.valid (files.open("..\\parse\\yacc_test.cm")) )
+        qDebug() << "false";
     ui->setupUi(this);
+    ui->wEditor->setFiles(&files);
 }
 
 MainWindow::~MainWindow()
@@ -19,8 +23,10 @@ void MainWindow::on_action_Open_triggered()
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open File"), ".", tr("C Minus Source File( *.cm )"));
 
-    if (! files.open(fileName)) return;
-    ui->wEditor->setDocument( files.current()->doc);
+    cminus::CMinusFiles::iterator iter = files.open(fileName);
+    if (! files.valid(iter)) return;
+
+    ui->wEditor->changeCurrent(iter);
     // workaroud for rehighlighting
     ui->wEditor->rehighlight();
 }

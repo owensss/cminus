@@ -3,6 +3,7 @@
 #include <QFile>
 #include <vector>
 #include <QTextDocument>
+#include <QAbstractListModel>
 
 namespace cminus {
 
@@ -12,18 +13,28 @@ namespace cminus {
 		// bool dirt; // isModified will do the trick
 	};
 
-	class CMinusFiles {
+    class CMinusFiles : public QAbstractListModel {
+        Q_OBJECT
+
 		public:
             typedef CMinusFile                            value_type;
             typedef std::list<value_type>                 container;
             typedef typename container::iterator          iterator;
             typedef typename container::const_iterator    const_iterator;
+        public:
+            // reimpl function
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const {
+                return list.size();
+            }
+            virtual QVariant data(const QModelIndex& index, int Role = Qt::DisplayRole) const;
+            virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 		public:
-			CMinusFiles() {}
+            CMinusFiles(QObject * parent = nullptr) :QAbstractListModel(parent) {}
 			~CMinusFiles();
-			bool open(const QString& path, bool set_current = true);
+            iterator open(const QString& path, bool set_current = true);
             bool write(const QTextDocument* doc);
-            iterator current() {return current_;}
+            iterator at(int index);
+            bool valid(const_iterator iter) {if (iter == list.end()) return false; return true;}
 
 			void writeAll(void);
 			void close(int id);
@@ -40,7 +51,6 @@ namespace cminus {
 			}
 		private:
 			container list;
-            iterator current_;
 	};
 }
 
