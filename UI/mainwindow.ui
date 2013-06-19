@@ -145,17 +145,17 @@
   </action>
   <action name="actionSaveAll">
    <property name="text">
-    <string>SaveAll</string>
+    <string>Save All</string>
    </property>
   </action>
   <action name="actionSaveAs">
    <property name="text">
-    <string>SaveAs</string>
+    <string>Save As</string>
    </property>
   </action>
   <action name="actionCloseAll">
    <property name="text">
-    <string>CloseAll</string>
+    <string>Close All</string>
    </property>
   </action>
  </widget>

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QDebug>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->wEditor->setFiles(&files);
+    // create a new
+    on_action_New_triggered();
 }
 
 MainWindow::~MainWindow()
@@ -49,6 +52,15 @@ void MainWindow::on_actionSaveAs_triggered() {
 
 void MainWindow::on_action_Close_triggered()
 {
+    if (files.isModified(ui->wEditor->current())) {
+        int ret = QMessageBox::warning(this, "Warning", "File Modified, Save before close?",
+                                 QMessageBox::Save | QMessageBox::Discard| QMessageBox::Cancel,
+                                 QMessageBox::Save);
+        if (ret == QMessageBox::Save)
+            on_actionSave_triggered();
+        else if (ret == QMessageBox::Cancel)
+            return;
+    }
     files.close(ui->wEditor->current());
     ui->wEditor->changeCurrent(files.at(0));
 }

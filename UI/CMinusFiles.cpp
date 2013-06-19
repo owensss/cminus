@@ -30,8 +30,8 @@ namespace cminus {
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
         endInsertRows();
-        return --list.end(); // last element
         fs.close();
+        return --list.end(); // last element
 	}
 
 	void CMinusFiles::writeAll(void) {
@@ -90,7 +90,7 @@ namespace cminus {
             size_t end = index.row();
             if (end > list.size()) return QVariant();
             const_iterator iter = list.begin();
-            for (int i = 0; i < end; ++i) ++iter;
+            for (size_t i = 0; i < end; ++i) ++iter;
             QString tmp = iter->filename;
             int sidx = tmp.lastIndexOf("/");
             int fidx = tmp.lastIndexOf("\\");
@@ -102,7 +102,7 @@ namespace cminus {
         return QVariant();
     }
 
-    QVariant CMinusFiles::headerData(int section, Qt::Orientation orientation, int role) const {
+    QVariant CMinusFiles::headerData(int /*section*/, Qt::Orientation orientation, int role) const {
         if (role==Qt::DisplayRole) {
             if (orientation == Qt::Horizontal)
                 return tr("Opened File List");
@@ -112,7 +112,7 @@ namespace cminus {
         return QVariant();
     }
 
-    CMinusFiles::iterator CMinusFiles::at(int index) {
+    CMinusFiles::iterator CMinusFiles::at(size_t index) {
         if (index > list.size()) return list.end();
         iterator iter = list.begin();
         for (int i = 0; i < index; ++i) ++iter;
