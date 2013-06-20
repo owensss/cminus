@@ -48,4 +48,16 @@ void CMinusHighlighter::highlightBlock(const QString &text) {
        startIndex = text.indexOf(startExpression,
                                  startIndex + commentLength);
     }
+
+    // highlight numbers
+    QString numPattern = "[0-9]+";
+
+    QRegExp numexp(numPattern);
+    int num_index = text.indexOf(numexp);
+    while (num_index >= 0) {
+        int length = numexp.matchedLength();
+        // setFormat(key_index, length, keywordFormat);
+        setFormat(num_index, length, QColor(0, 0, 255));
+        num_index = text.indexOf(numexp, num_index + length);
+    }
 }

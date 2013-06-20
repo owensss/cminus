@@ -93,6 +93,15 @@ void TextEditor::redo() {
 void TextEditor::on_textEdit_textChanged()
 {
     testModified();
+    // 无节操实现 括号匹配
+    QString text = this->document->toPlainText();
+    if (text.size() == 0) return;
+    if (text[text.size()-1] == '{') {
+        text = text + "\n\t\n}";
+        this->document->setPlainText(text);
+        ui->textEdit->moveCursor(QTextCursor::Up);
+        ui->textEdit->moveCursor(QTextCursor::Right);
+    }
 }
 
 void TextEditor::testModified() {
@@ -116,4 +125,8 @@ void TextEditor::reset_tabWidth() {
 
     QFontMetrics metrics(font);
     ui->textEdit->setTabStopWidth(tabStop * metrics.width(' '));
+}
+
+void TextEditor::autoIndent() {
+
 }
