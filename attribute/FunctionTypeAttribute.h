@@ -16,7 +16,7 @@ namespace cminus
 	struct FunctionTypeAttribute
 	{
 		VariableTypeAttribute returntype;
-		std::vector<VariableTypeAttribute> args;
+		std::vector<VariableTypeAttribute*>* args;
 	};
 }
 

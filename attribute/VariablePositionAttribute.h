@@ -19,6 +19,7 @@ struct VariablePositionAttribute
 {
 
 	bool userDefined;
+	bool isAddress;
 	struct
 	{
 		bool inRegister;
@@ -43,6 +44,7 @@ struct VariablePositionAttribute
 		memoryPosition.inMemory=false;
 		memoryPosition.where = GLOBAL_DATA_AREA;
 		memoryPosition.offset = 0;
+		isAddress = false;
 	}
 	void StoreInRegister(int index)
 	{

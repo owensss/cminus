@@ -1,0 +1,35 @@
+int main(void)
+{
+	int a;
+	int b;
+	int c;
+	int d;
+	int e[10];
+	
+	a=10;
+	b=20;
+	c=30;
+	d=a*b+c/b-a*e[1];
+	if(a>0)
+	return a;
+}
+int gcd(int a,int b)
+{
+	if(b==0)
+		return a;
+	return gcd(b,a-a/b*b);
+}
+int max(int a[],int n)
+{
+	int i;
+	int m;
+	i=0;
+	m=0;
+	while(i<n)
+	{
+		if(m<a[i])
+			m=a[i];
+		i=i+1;
+	}
+	return m;
+}

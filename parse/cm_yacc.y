@@ -237,10 +237,12 @@ int main (int argc,char** argv) {
 	}
 	else
 	{
+#define LOGICWORLD
 #ifdef LOGICWORLD // note: not work in Linux
-		if(!(yyin=fopen(".\\parse\\yacc_test.txt","r")))
+		if(!(yyin=fopen(".\\codegen\\codegen_test_exp.txt","r")))
 		{
 			printf("Error:Can't open file %s\n",argv[1]);
+			return -1;
 		}
 #endif
 	}
