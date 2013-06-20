@@ -13,26 +13,37 @@ namespace cminus {
 
     CMinusFiles::iterator CMinusFiles::open(const QString& path) {
 		CMinusFile file;
-        QFile fs(path);
-        iterator found = find(path);
-        if (found != list.end()) return found;
-
-        if (! fs.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            return list.end();
-		}
-
-        QTextStream out(&fs);
         file.filename = path;
-        file.doc = new QTextDocument(out.readAll());
-
-        file.doc->clearUndoRedoStacks();
-        file.doc->setModified(false);
+        file.doc = new QTextDocument();
+        if (! do_open(file)) {
+            delete file.doc;
+        }
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
         endInsertRows();
+
         return --list.end(); // last element
-        fs.close();
 	}
+
+    CMinusFiles::iterator CMinusFiles::reopen(iterator iter) {
+        do_open(*iter);
+    }
+
+    bool CMinusFiles::do_open(CMinusFile &file) {
+        QFile fs(file.filename);
+
+        if (! fs.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return false;
+        }
+
+        QTextStream out(&fs);
+        file.doc->setPlainText(out.readAll());
+
+        file.doc->clearUndoRedoStacks();
+        file.doc->setModified(false);
+        fs.close();
+        return true;
+    }
 
 	void CMinusFiles::writeAll(void) {
         iterator end = list.end();
@@ -52,6 +63,7 @@ namespace cminus {
             QTextStream in(&fs);
             in << iter->doc->toPlainText();
             iter->doc->setModified(false);
+            emit modified();
             return true;
         }
 		return false;
@@ -69,7 +81,7 @@ namespace cminus {
         beginRemoveRows(QModelIndex(), count, count);
         list.erase(iter);
         endRemoveRows();
-
+        if (rowCount() == 0) create();
         return true;
     }
 
@@ -90,7 +102,7 @@ namespace cminus {
             size_t end = index.row();
             if (end > list.size()) return QVariant();
             const_iterator iter = list.begin();
-            for (int i = 0; i < end; ++i) ++iter;
+            for (size_t i = 0; i < end; ++i) ++iter;
             QString tmp = iter->filename;
             int sidx = tmp.lastIndexOf("/");
             int fidx = tmp.lastIndexOf("\\");
@@ -102,7 +114,7 @@ namespace cminus {
         return QVariant();
     }
 
-    QVariant CMinusFiles::headerData(int section, Qt::Orientation orientation, int role) const {
+    QVariant CMinusFiles::headerData(int /*section*/, Qt::Orientation orientation, int role) const {
         if (role==Qt::DisplayRole) {
             if (orientation == Qt::Horizontal)
                 return tr("Opened File List");
@@ -112,7 +124,7 @@ namespace cminus {
         return QVariant();
     }
 
-    CMinusFiles::iterator CMinusFiles::at(int index) {
+    CMinusFiles::iterator CMinusFiles::at(size_t index) {
         if (index > list.size()) return list.end();
         iterator iter = list.begin();
         for (int i = 0; i < index; ++i) ++iter;

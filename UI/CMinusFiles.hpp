@@ -34,23 +34,27 @@ namespace cminus {
             iterator create(void);
             iterator save_new(const QString& name);
             iterator open(const QString& path);
+            iterator reopen(iterator iter);
             bool write(iterator iter);
             bool close(iterator iter);
-            iterator at(int index);
+            bool isModified(iterator iter) { if (iter->doc->isModified()) return true; return false;}
+            iterator at(size_t index);
             bool valid(const_iterator iter) {if (iter == list.end()) return false; return true;}
 
 			void writeAll(void);
 			void close(int id);
+        signals:
+            void modified();
 		private:
-
+            bool do_open(CMinusFile& iter);
             iterator find(const QString fs) {
                 return find_if(list.begin(), list.end(), [&](const CMinusFile& f)
-                    { if (f.filename == fs) return true;}
+                    { if (f.filename == fs) return true; return false;}
 				);
 			}
             iterator find(const QTextDocument* doc) {
                 return find_if(list.begin(), list.end(), [&](const CMinusFile& f)
-                    { if ( f.doc == doc) return true;});
+                    { if ( f.doc == doc) return true; return false;});
 			}
 		private:
 			container list;

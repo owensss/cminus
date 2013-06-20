@@ -49,6 +49,7 @@ void TextEditor::setFiles(cminus::CMinusFiles *files_) {
 
     connect(ui->listFile, SIGNAL(clicked(QModelIndex)), this, SLOT(changeCurrent(const QModelIndex&)));
     connect(files, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(changeCurrent(QModelIndex, int, int)) );
+    connect(files, SIGNAL(modified()), this, SLOT(testModified()));
 }
 
 void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {

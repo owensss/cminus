@@ -29,9 +29,9 @@ class TextEditor : public QWidget
         void changeCurrent(const QModelIndex& parent, int begin, int end);
     private slots:
         void on_textEdit_textChanged();
+        void testModified(void);
     private:
         void do_setDocument(QTextDocument* doc);
-        void testModified(void);
         void autoIndent();
         void reset_tabWidth();
     private:
