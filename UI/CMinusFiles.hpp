@@ -34,6 +34,7 @@ namespace cminus {
             iterator create(void);
             iterator save_new(const QString& name);
             iterator open(const QString& path);
+            iterator reopen(iterator iter);
             bool write(iterator iter);
             bool close(iterator iter);
             bool isModified(iterator iter) { if (iter->doc->isModified()) return true; return false;}
@@ -42,8 +43,10 @@ namespace cminus {
 
 			void writeAll(void);
 			void close(int id);
+        signals:
+            void modified();
 		private:
-
+            bool do_open(CMinusFile& iter);
             iterator find(const QString fs) {
                 return find_if(list.begin(), list.end(), [&](const CMinusFile& f)
                     { if (f.filename == fs) return true; return false;}

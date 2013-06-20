@@ -13,26 +13,37 @@ namespace cminus {
 
     CMinusFiles::iterator CMinusFiles::open(const QString& path) {
 		CMinusFile file;
-        QFile fs(path);
-        iterator found = find(path);
-        if (found != list.end()) return found;
-
-        if (! fs.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            return list.end();
-		}
-
-        QTextStream out(&fs);
         file.filename = path;
-        file.doc = new QTextDocument(out.readAll());
-
-        file.doc->clearUndoRedoStacks();
-        file.doc->setModified(false);
+        file.doc = new QTextDocument();
+        if (! do_open(file)) {
+            delete file.doc;
+        }
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         list.push_back(file);
         endInsertRows();
-        fs.close();
+
         return --list.end(); // last element
 	}
+
+    CMinusFiles::iterator CMinusFiles::reopen(iterator iter) {
+        do_open(*iter);
+    }
+
+    bool CMinusFiles::do_open(CMinusFile &file) {
+        QFile fs(file.filename);
+
+        if (! fs.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return false;
+        }
+
+        QTextStream out(&fs);
+        file.doc->setPlainText(out.readAll());
+
+        file.doc->clearUndoRedoStacks();
+        file.doc->setModified(false);
+        fs.close();
+        return true;
+    }
 
 	void CMinusFiles::writeAll(void) {
         iterator end = list.end();
@@ -52,6 +63,7 @@ namespace cminus {
             QTextStream in(&fs);
             in << iter->doc->toPlainText();
             iter->doc->setModified(false);
+            emit modified();
             return true;
         }
 		return false;
@@ -69,7 +81,7 @@ namespace cminus {
         beginRemoveRows(QModelIndex(), count, count);
         list.erase(iter);
         endRemoveRows();
-
+        if (rowCount() == 0) create();
         return true;
     }
 
