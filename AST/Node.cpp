@@ -290,7 +290,7 @@ namespace cminus {
 		}
 		first = state_list->first;
 		last = state;
-		std::cout << this << "\t" << state_list << "\t" << state << std::endl;
+		//std::cout << this << "\t" << state_list << "\t" << state << std::endl;
 		state_list->last->setNext(last);
 		last->setNext(NULL);
 
