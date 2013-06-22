@@ -233,7 +233,9 @@ int main (int argc,char** argv) {
 		if(!(yyin=fopen(argv[1],"r")))
 		{
 			printf("Error:Can't open file %s\n",argv[1]);
+			return -1;
 		}
+		
 	}
 	else
 	{

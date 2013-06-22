@@ -94,6 +94,17 @@ struct VariablePositionAttribute
 			return std::string(code);
 		}
 	}
+	std::string RegName()
+	{
+		if(memoryPosition.where==GLOBAL_DATA_AREA)
+		{
+			return std::string("$gp");
+		}
+		else
+		{
+			return std::string("$fp");
+		}
+	}
 };
 }
 

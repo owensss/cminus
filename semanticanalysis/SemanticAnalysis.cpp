@@ -21,6 +21,25 @@ int g_semanticErrorCount = 0;
 void Node_program::semantic_analysis_preorder(void)
 {
 	PushSymbolTableStack(&g_symbolTableStack);
+	//add input and output predefined function.
+	{
+		FunctionAttribute* function_attribute = new FunctionAttribute("input");
+		function_attribute->type.returntype.type=CM_INT;
+		function_attribute->type.returntype.arrayNum=0;
+		function_attribute->type.args=NULL;
+		InsertSymbolTableStack("input",(void*)function_attribute,&g_symbolTableStack);
+	}
+	{
+		FunctionAttribute* function_attribute = new FunctionAttribute("output");
+		function_attribute->type.returntype.type=CM_VOID;
+		function_attribute->type.returntype.arrayNum=0;
+		function_attribute->type.args=new std::vector<VariableTypeAttribute*>();
+		VariableTypeAttribute* vt = new VariableTypeAttribute();
+		vt->type=CM_INT;
+		vt->arrayNum=0;
+		function_attribute->type.args->push_back(vt);
+		InsertSymbolTableStack("output",(void*)function_attribute,&g_symbolTableStack);
+	}
 }
 void Node_program::semantic_analysis_postorder(void)
 {
@@ -45,13 +64,13 @@ void Node_var_declaration::semantic_analysis_preorder(void)
 	if (variable_attribute_->type.type == CM_VOID)
 	{
 		std::cerr << ERROR_FORMAT << "The type of " << variable_attribute_->name
-				<< "can not be void\n";
+				<< " can not be void\n";
 		g_semanticErrorCount++;
 	}
 }
 void Node_fun_declaration::semantic_analysis_preorder(void)
 {
-	PushSymbolTableStack(&g_symbolTableStack);
+
 	function_attribute_ = new FunctionAttribute((char*&) this->id_);
 	function_attribute_->type.returntype.type = (cm_type&) type_;
 	function_attribute_->type.returntype.arrayNum = 0;
@@ -63,6 +82,7 @@ void Node_fun_declaration::semantic_analysis_preorder(void)
 		std::cerr << ERROR_FORMAT << "The same name had been defined before.\n";
 		g_semanticErrorCount++;
 	}
+	PushSymbolTableStack(&g_symbolTableStack);
 }
 void Node_fun_declaration::semantic_analysis_inorder(void)
 {
@@ -137,11 +157,27 @@ void Node_selection_stmt::semantic_analysis_preorder()
 		stmt2_->set_function_attribute(this->function_attribute_);
 	}
 }
+void Node_selection_stmt::semantic_analysis_inorder()
+{
+	if(expr_->get_variable_attribute()->type.type!=CM_INT)
+	{
+		std::cerr<<ERROR_FORMAT<<"The expression in the if is not int type.\n";
+		g_semanticErrorCount++;
+	}
+}
 void Node_iteration_stmt::semantic_analysis_preorder()
 {
 	if(stmt_)
 	{
 		stmt_->set_function_attribute(this->function_attribute_);
+	}
+}
+void Node_iteration_stmt::semantic_analysis_inorder()
+{
+	if(expr_->get_variable_attribute()->type.type!=CM_INT)
+	{
+		std::cerr<<ERROR_FORMAT<<"The expression in the while is not int type.\n";
+		g_semanticErrorCount++;
 	}
 }
 void Node_return_stmt::semantic_analysis_preorder()
@@ -246,7 +282,7 @@ void Node_var::semantic_analysis_postorder()
 				!= IdentifierAttribute::IDENTIFIER_VARIABLE)
 		{
 			std::cerr << ERROR_FORMAT << "The symbol " << (char*&) id_
-					<< "is not the variable type.\n";
+					<< " is not the variable type.\n";
 			g_semanticErrorCount++;
 		}
 		else
@@ -267,7 +303,7 @@ void Node_var::semantic_analysis_postorder()
 			else
 			{
 				std::cerr << ERROR_FORMAT << "The symbol " << (char*&) id_
-						<< "is not the array type.\n";
+						<< " is not the array type.\n";
 				g_semanticErrorCount++;
 
 			}
@@ -394,7 +430,7 @@ void Node_call::semantic_analysis_preorder()
 				!= IdentifierAttribute::IDENTIFIER_FUNCTION)
 		{
 			std::cerr << ERROR_FORMAT << "The symbol " << (char*&) id_
-					<< "is not function.\n";
+					<< " is not function.\n";
 			g_semanticErrorCount++;
 		}
 		else
@@ -405,7 +441,7 @@ void Node_call::semantic_analysis_preorder()
 	if (!this->variable_attribute_)
 	{
 		this->variable_attribute_ = new VariableAttribute("temp");
-		this->variable_attribute_->type.type = CM_INT;
+		this->variable_attribute_->type.type = function_attribute_->type.returntype.type;
 		this->variable_attribute_->type.arrayNum = 0;
 	}
 }

@@ -87,7 +87,8 @@ class Node {
 	public:
 		// generate the intermedia code
 		virtual void generate(void) = 0;
-		virtual void generate_code(void){}
+		virtual void generate_code_preorder(void){}
+		virtual void generate_code_postorder(void){}
 		virtual void semantic_analysis_preorder(void){}
 		virtual void semantic_analysis_postorder(void){}
 		//
@@ -114,7 +115,7 @@ class Node_program : public Node {
 	public:
 		explicit Node_program(Node_declaration_list* dec_list);
 		virtual void generate(void);
-		virtual void generate_code(void);
+		virtual void generate_code_preorder(void);
 		virtual void semantic_analysis_preorder(void);
 		virtual void semantic_analysis_postorder(void);
 
@@ -174,7 +175,7 @@ class Node_var_declaration : public Node_declaration {
 		explicit Node_var_declaration(raw_type<cm_type> type, raw_type<char*> id);
 		explicit Node_var_declaration(raw_type<cm_type> type, raw_type<char*> id, raw_type<cm_size_type> array_size);
 		void generate();
-		virtual void generate_code(void);
+		virtual void generate_code_preorder(void);
 		virtual void semantic_analysis_preorder(void);
 	private:
 		raw_type<cm_type> type_;
@@ -183,6 +184,7 @@ class Node_var_declaration : public Node_declaration {
 		raw_type<cm_size_type> array_size_;
 
 		VariableAttribute* variable_attribute_;
+		std::ostringstream code_;
 };
 /*
 //rule related
@@ -193,8 +195,9 @@ class Node_fun_declaration : public Node_declaration {
 		explicit Node_fun_declaration(raw_type<cm_type> type, raw_type<char*> id, Node_params* params, Node_compound_stmt* compound);
 		void generate();
 		~Node_fun_declaration() {}
-		virtual void generate_code(void);
-		void generate_code_preorder(void);
+		//virtual void generate_code(void);
+		virtual void generate_code_preorder(void);
+		virtual void generate_code_postorder(void);
 		virtual void semantic_analysis_preorder(void);
 		void semantic_analysis_inorder(void);
 		virtual void semantic_analysis_postorder(void);
@@ -258,14 +261,17 @@ class Node_param : public Node {
 		Node_param* next(void) {return next_;}
 		void generate();
 		virtual void semantic_analysis_preorder();
+		virtual void generate_code_preorder();
 		~Node_param() {} // = default;
 		VariableTypeAttribute* get_type(){return &(variable_attribute_->type);}
+		void set_param_index(int index){param_index=index;}
 	private:
 		Node_param* next_;
 		raw_type<cm_type> type_;
 		raw_type<char*> id_;
 
 		VariableAttribute* variable_attribute_;
+		int param_index;
 };
 
 // pre requ for compound_stmt
@@ -294,6 +300,7 @@ class Node_compound_stmt : public Node_statement {
 
 		virtual void semantic_analysis_preorder();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_local_declarations* local_dec_;
 		Node_statement_list* stmt_;
@@ -340,8 +347,12 @@ class Node_expression_stmt : public Node_statement {
 		Node_expression_stmt(Node_expression* expr);
 		~Node_expression_stmt() {}
 		void generate();
+		virtual void generate_code_preorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_expression* expr_;
+
+		std::ostringstream begin_code_;
 };
 /*
 selection_stmt: IF '(' expression ')' statement %prec LOWER_THAN_ELSE
@@ -353,12 +364,23 @@ class Node_selection_stmt : public Node_statement {
 		Node_selection_stmt(Node_expression* expr,Node_statement* stmt1, Node_statement* stmt2, bool else_);
 		~Node_selection_stmt() {}
 		virtual void semantic_analysis_preorder();
+		void semantic_analysis_inorder();
+		virtual void generate_code_preorder();
+		virtual void generate_code_postorder();
+		void generate_code_if();
+		void generate_code_else();
 		void generate();
 	private:
 		Node_expression* expr_;
 		Node_statement* stmt1_;
 		Node_statement* stmt2_;
 		bool else_;
+
+		std::ostringstream begin_code_;
+		std::ostringstream if_code_;
+		std::ostringstream else_code_;
+		std::ostringstream end_code_;
+		int labelID;
 };
 /*
 iteration_stmt: WHILE '(' expression ')' statement
@@ -369,9 +391,19 @@ class Node_iteration_stmt : public Node_statement {
 		~Node_iteration_stmt() {}
 		void generate();
 		virtual void semantic_analysis_preorder();
+		void semantic_analysis_inorder();
+		virtual void generate_code_preorder();
+		virtual void generate_code_inorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_expression* expr_;
 		Node_statement* stmt_;
+
+		std::ostringstream begin_code_;
+		std::ostringstream while_code_;
+		std::ostringstream end_code_;
+		int labelID;
+
 };
 /*
 return_stmt: RETURN ';' {$$ = new Node_return_stmt();}
@@ -384,8 +416,13 @@ class Node_return_stmt : public Node_statement {
 		void generate();
 		virtual void semantic_analysis_preorder();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_preorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_expression* expr_;
+
+		std::ostringstream begin_code_;
+		std::ostringstream code_;
 };
 class Node_expression_base : public Node
 {
@@ -413,10 +450,13 @@ class Node_expression : public Node_expression_base {
 		void generate();
 		//virtual void semantic_analysis_preorder();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_var* var_;
 		Node_expression* expr_;
 		Node_simple_expression* sim_expr_;
+
+		std::ostringstream code_;
 };
 /*
 var: 		ID {$$ = new Node_var($1);}
@@ -429,9 +469,12 @@ class Node_var : public Node_expression_base {
 		void generate();
 		~Node_var() {}
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 	private:
 		raw_type<char*> id_;
 		Node_expression* expr_;
+
+		std::ostringstream code_;
 };
 /*
 simple_expression:additive_expression RELOP additive_expression {$$ = new Node_simple_expression($1, $2, $3);}
@@ -447,11 +490,14 @@ class Node_simple_expression : public Node_expression_base {
 
 		~Node_simple_expression() {}
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 		void generate();
 	private:
 		Node_additive_expression* add1_;
 		raw_type<cm_relops> relop_;
 		Node_additive_expression* add2_;
+
+		std::ostringstream code_;
 };
 /*
 additive_expression: additive_expression addop term {$$ = new Node_additive_expression($1, $2, $3);}
@@ -468,10 +514,13 @@ class Node_additive_expression : public Node_expression_base {
 
 		void generate();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_additive_expression* add_;
 		raw_type<cm_ops> op_;
 		Node_term* term_;
+
+		std::ostringstream code_;
 };
 /*
 term: term mulop factor {$$ = new Node_term($1, $2, $3);}
@@ -485,10 +534,13 @@ class Node_term : public Node_expression_base {
 		virtual ~Node_term() {}
 		void generate();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 	private:
 		Node_term* term_;
 		raw_type<cm_ops> op_;
 		Node_factor* factor_;
+
+		std::ostringstream code_;
 };
 /*
 factor: '(' expression ')' {$$ = new Node_factor($2);}
@@ -509,6 +561,7 @@ class Node_factor : public Node_expression_base {
 		virtual ~Node_factor() {}
 		void generate();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_postorder();
 	private:
 		enum {t_expression, t_var, t_call, t_num} type;
 		union {
@@ -517,6 +570,7 @@ class Node_factor : public Node_expression_base {
 			Node_call* call_;
 			raw_type<cm_int_type>* num_;
 		} u;
+		std::ostringstream code_;
 };
 /*
 call: ID '(' args ')' {$$ = new Node_call($1, $3);}
@@ -529,10 +583,14 @@ class Node_call : public Node_expression_base {
 		void generate();
 		virtual void semantic_analysis_preorder();
 		virtual void semantic_analysis_postorder();
+		virtual void generate_code_preorder();
+		virtual void generate_code_postorder();
 	private:
 		raw_type<char*> id_;
 		Node_args* args_;
 		FunctionAttribute* function_attribute_;
+
+		std::ostringstream code_;
 };
 /*
 args: arg_list {$$ = new Node_args($1);}
@@ -570,12 +628,15 @@ class Node_arg_list : public Node {
 		void generate();
 		virtual void semantic_analysis_preorder();
 		void semantic_analysis_inorder(Node_expression* exp);
+		virtual void generate_code_postorder();
 		~Node_arg_list() {}
 		std::vector<VariableTypeAttribute*>* get_args(){return args_;}
 	private:
 		std::vector<Node_expression*> vector_expr_;
 
 		std::vector<VariableTypeAttribute*>* args_;
+
+		std::ostringstream code_;
 };
 
 } // namespace cminus

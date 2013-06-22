@@ -77,6 +77,10 @@ class RegisterFile
 					m_name.c_str(),variableAttribute->AddressCode().c_str());
 			return std::string(code);
 		}
+		std::string GetRegName()
+		{
+			return m_name;
+		}
 	private:
 		const std::string m_name;
 		const int m_index;
@@ -117,8 +121,19 @@ public:
 	}
 	std::string LoadWord(int& spOffset,VariablePositionAttribute* variableAttribute)
 	{
-		std::string code = Insert(spOffset,variableAttribute);
-		return code+registers[variableAttribute->registerPosition.registerIndex].LoadRegisterCode();
+		if(!variableAttribute->InRegister())
+		{
+			std::string code = Insert(spOffset,variableAttribute);
+			return code+registers[variableAttribute->registerPosition.registerIndex].LoadRegisterCode();
+		}
+		else
+		{
+			return std::string("");
+		}
+	}
+	std::string GetRegName(VariablePositionAttribute* variableAttribute)
+	{
+		return registers[variableAttribute->registerPosition.registerIndex].GetRegName();
 	}
 	//SReg means $t0,$t1,...,$t7
 	std::string StoreTReg(int& spOffset)
@@ -143,6 +158,7 @@ public:
 				registers[i].Clear();
 			}
 		}
+		registerAllocPoint=S0_INDEX;
 	}
 	void ClearIfTemp(VariablePositionAttribute* variableAttribute)
 	{

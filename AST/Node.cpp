@@ -4,8 +4,12 @@
 
 extern void yyerror(const char* what);
 
+
+#define IF_NO_ERROR(call) if(g_semanticErrorCount==0) call()
+
 //!!!!!!!! Node_program
 namespace cminus {
+	extern int g_semanticErrorCount;
 	using std::endl;
 	std::fstream xml_dump;
 	struct _ {
@@ -105,8 +109,10 @@ namespace cminus {
 		// call child
 		xml_dump << "<Node_program>\n";
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		child->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_program>\n";
 	}
 
@@ -173,6 +179,7 @@ namespace cminus {
 			dump_array(array_size_);
 		}
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		xml_dump << "</Node_var_declaration>\n";
 	}
 	//!!!!!!!! Node_fun_declaration
@@ -189,10 +196,15 @@ namespace cminus {
 		dump_type(type_);
 		dump_id(id_);
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
+
 		params_->generate();
 		this->semantic_analysis_inorder();
+		//IF_NO_ERROR(generate_code_inorder);
+
 		compound_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_fun_declaration>\n";
 	}
 	//!!!!!!!! Node_params
@@ -225,13 +237,18 @@ namespace cminus {
 	void Node_param_list::generate() {
 		xml_dump << "<Node_param_list>\n";
 		this->semantic_analysis_preorder();
+		int index=0;
 		if (first != NULL) {
 			for (Node_param* iter = first; iter != last; iter=iter->next()) {
+				iter->set_param_index(index);
+				index++;
 				iter->generate();
 				this->semantic_analysis_interleave_order(iter);
 			}
 		}
 		if (last != NULL /*&& first != last*/){
+			last->set_param_index(index);
+			index++;
 			last->generate();
 			this->semantic_analysis_interleave_order(last);
 		}
@@ -244,13 +261,16 @@ namespace cminus {
 			id_ = id;
 			id_.value = strdup_(id.value);
 			variable_attribute_ = NULL;
+			param_index=-1;
 	}
 
 	void Node_param::generate() {
 		xml_dump << "<Node_param>\n";
-		this->semantic_analysis_preorder();
+
 		dump_type(type_);
 		dump_id(id_);
+		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		xml_dump << "</Node_param>\n";
 	}
 	//!!!!!!!! Node_compound_stmt
@@ -263,6 +283,7 @@ namespace cminus {
 		this->semantic_analysis_preorder();
 		if (local_dec_ != NULL) local_dec_->generate();
 		if (stmt_ != NULL) stmt_->generate();
+		IF_NO_ERROR(generate_code_postorder);
 		this->semantic_analysis_postorder();
 		xml_dump << "</Node_compound_stmt>\n";
 	}
@@ -342,41 +363,59 @@ namespace cminus {
 	void Node_expression_stmt::generate(void) {
 		xml_dump << "<Node_expression_stmt>\n";
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		if(expr_) expr_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_expression_stmt>\n";
 	}
 
 	//!!!!!!!!! Node_selection_stmt
 	Node_selection_stmt::Node_selection_stmt(Node_expression* expr, Node_statement* stmt1, bool else__)
 		:expr_(expr), stmt1_(stmt1), stmt2_(NULL), else_(else__) {
+		labelID=-1;
 	}
 
 	Node_selection_stmt::Node_selection_stmt(Node_expression* expr, Node_statement* stmt1, Node_statement* stmt2, bool else__) 
 		:expr_(expr), stmt1_(stmt1), stmt2_(stmt2), else_(else__) 
 	{
+		labelID=-1;
 	}
 
 	void Node_selection_stmt::generate() {
 		xml_dump << "<Node_selection_stmt>\n";
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		expr_->generate();
+		this->semantic_analysis_inorder();
+		IF_NO_ERROR(generate_code_if);
 		stmt1_->generate();
-		if (else_) stmt2_->generate();
+
+		if (else_)
+		{
+			IF_NO_ERROR(generate_code_else);
+			stmt2_->generate();
+		}
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_selection_stmt>\n";
 	}
 	//!!!!!!!!! Node_iteration_stmt
 	Node_iteration_stmt::Node_iteration_stmt(Node_expression* expr, Node_statement* stmt)
 		:expr_(expr), stmt_(stmt) {
+		labelID=-1;
 	}
 
 	void Node_iteration_stmt::generate() {
 		xml_dump << "<Node_iteration_stmt>\n";
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		expr_->generate();
+		this->semantic_analysis_inorder();
+		IF_NO_ERROR(generate_code_inorder);
 		stmt_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_iteration_stmt>\n";
 	}
 	//!!!!!!!!! Node_return_stmt
@@ -387,8 +426,10 @@ namespace cminus {
 	void Node_return_stmt::generate() {
 		xml_dump << "<Node_return_stmt>\n";
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		if (expr_) expr_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_return_stmt>\n";
 	}
 	//!!!!!!!!! Node_expression
@@ -399,6 +440,7 @@ namespace cminus {
 		if (expr_) expr_->generate();
 		if (sim_expr_) sim_expr_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_expression>\n";
 	}
 
@@ -409,6 +451,7 @@ namespace cminus {
 		dump_id(id_);
 		if (expr_) expr_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_var>\n";
 	}
 	//!!!!!!!!! Node_simple_expression
@@ -421,6 +464,7 @@ namespace cminus {
 			add2_->generate();
 		}
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_simple_expression>\n";
 	}
 	//!!!!!!!!! Node_additive_expression
@@ -433,6 +477,7 @@ namespace cminus {
 		}
 		term_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_additive_expression>\n";
 	}
 	//!!!!!!!!! Node_term
@@ -445,6 +490,7 @@ namespace cminus {
 		}
 		factor_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_term>\n";
 	}
 	//!!!!!!!!! Node_factor
@@ -466,6 +512,7 @@ namespace cminus {
 				break;
 		}
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_factor>\n";
 	}
 
@@ -473,9 +520,11 @@ namespace cminus {
 	void Node_call::generate() {
 		xml_dump << "<Node_call>\n";
 		this->semantic_analysis_preorder();
+		IF_NO_ERROR(generate_code_preorder);
 		dump_id(id_);
 		args_->generate();
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_call>\n";
 	}
 	//!!!!!!!!! Node_args
@@ -497,6 +546,7 @@ namespace cminus {
 			this->semantic_analysis_inorder((*iter));
 		}
 		this->semantic_analysis_postorder();
+		IF_NO_ERROR(generate_code_postorder);
 		xml_dump << "</Node_arg_list>\n";
 	}
 } // namespace cminus

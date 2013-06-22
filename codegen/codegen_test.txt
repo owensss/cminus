@@ -1,5 +1,41 @@
-int main(void)
+/*global variable test*/
+int ga;
+int ge[100];
+int gb;
+int globalFun(void)
 {
+	int i;
+	/*simple expression test & global variable test.*/
+	ga=100;
+	gb=200;
+	/*var[exp]=exp test.*/
+	ge[0]=ga+gb;
+	ge[gb-ga-99]=ga+gb;
+	return ge[1];
+}
+/*function declaration test & parameter(include variable and array) passing test.*/
+int max(int a[],int n)
+{
+	int i;
+	int maxInt;
+	i=0;
+	maxInt = 0;
+	/*while statement test.*/
+	while(i<n)
+	{
+		/*if statement test.*/
+		if(maxInt<a[i])
+		{
+			maxInt=a[i];
+		}
+		i=i+1;
+	}
+	/*return test.*/
+	return maxInt;
+}
+void main(void)
+{
+	/*local variable test*/
 	int a;
 	int b;
 	int c;
@@ -9,9 +45,34 @@ int main(void)
 	a=10;
 	b=20;
 	c=30;
+	e[1]=10;
+	/*complex expression test.*/
 	d=a*b+c/b-a*e[1];
+	output(d);
+	/*input test.*/
 	a=input();
+	/*output test.*/
 	output(a);
+	/*call function test.*/
+	output(globalFun());
+	/*complex function call test.*/
+	e[0]=0;e[1]=5;e[2]=6;e[3]=100;e[4]=1;e[5]=12;e[6]=11;e[7]=1234;e[8]=12342;e[9]=3;
+	output(max(e,10));
+	
+	/*condition test.*/
+	b=1;c=2;
+	a=(b<c);
+	a=(b>c);
+	a=(b==c);
+	a=(b>=c);
+	a=(b<=c);
+	a=(b!=c);
+	/*
 	if(a>0)
-	return a;
+		return a;
+	else
+		return b;
+	*/
+	/*return nothing test.*/
+	return ;
 }
