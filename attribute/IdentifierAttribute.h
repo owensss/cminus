@@ -41,7 +41,7 @@ struct VariableAttribute: public IdentifierAttribute
 	std::string name;
 	VariablePositionAttribute position;
 	VariableTypeAttribute type;
-	VariableAttribute(std::string& name) :
+	VariableAttribute(std::string name) :
 		IdentifierAttribute(IdentifierAttribute::IDENTIFIER_VARIABLE)
 	{
 		this->name = name;
@@ -51,7 +51,7 @@ struct FunctionAttribute: public IdentifierAttribute
 {
 	std::string name;
 	FunctionTypeAttribute type;
-	FunctionAttribute(std::string& name) :
+	FunctionAttribute(std::string name) :
 			IdentifierAttribute(IdentifierAttribute::IDENTIFIER_FUNCTION)
 	{
 		this->name = name;

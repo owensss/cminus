@@ -90,7 +90,7 @@ struct Symbol* LookUpSymbolListAll(char* name,struct SymbolList* symbolList)
 void DeleteSymbolListAll(struct SymbolList* symbolList)
 {
 	assert(symbolList);
-	while(symbolList=DeleteSymbolList(symbolList));
+	while((symbolList=DeleteSymbolList(symbolList)));
 }
 struct SymbolTable* NewSymbolTable(int size,
 	unsigned int (*hashFun)(const char* symbolName,int tableSize))
@@ -217,7 +217,7 @@ void DeleteSymbolTableListAll(
 	//assert(symbolTableList);
 	if(symbolTableList)
 	{
-		while(symbolTableList=DeleteSymbolTableList(symbolTableList));
+		while((symbolTableList=DeleteSymbolTableList(symbolTableList)));
 	}
 }
 struct SymbolTableStack* NewSymbolTableStack()
@@ -227,6 +227,7 @@ struct SymbolTableStack* NewSymbolTableStack()
 	ret = (struct SymbolTableStack*)malloc(sizeof(struct SymbolTableStack));
 
 	ret->current = NULL;
+	ret->currentLevel = 0;
 
 	return ret;
 }
@@ -259,6 +260,7 @@ struct SymbolTableStack* PushSymbolTableStack(struct SymbolTableStack* stack)
 
 	stack->current = NewSymbolTableList(NewSymbolTable(1331,HashFun1),
 			stack->current);
+	stack->currentLevel++;
 
 	return stack;
 }
@@ -268,6 +270,7 @@ void PopSymbolTableStack(struct SymbolTableStack* stack)
 	assert(stack->current);
 
 	stack->current = DeleteSymbolTableList(stack->current);
+	stack->currentLevel--;
 }
 struct Symbol* LookUpSymbolTableStack(char* name,
 		struct SymbolTableStack* stack)

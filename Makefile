@@ -2,7 +2,8 @@ CXXFLAGS =	-O2 -g -Wall -fmessage-length=0 -Wall -std=c++0x -ly -lfl
 
 CFLAGS = -Wall -std=c++0x -g
 
-OBJS = ./AST/Node.o ./parse/cm_yacc.o ./parse/cm_lex.o		
+OBJS = ./AST/Node.o ./parse/cm_yacc.o ./parse/cm_lex.o ./semanticanalysis/SemanticAnalysis.o \
+	./symtable/symtable.o ./codegen/RegisterFile.o ./codegen/CodeGen.o
 
 LIBS = 
 
@@ -35,6 +36,12 @@ $(TARGET): $(OBJS)
 ./parse/cm_lex.o: ./parse/cm_lex.cpp ./parse/cm_yacc.hpp ./AST/Node.hpp ./include/cm_base.h
 	$(CXX) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 ./codegen/RegisterFile.o: ./codegen/RegisterFile.cpp ./codegen/RegisterFile.h ./attribute/VariablePositionAttribute.h
+	$(CXX) -c -o $@ $< $(CFLAGS) $(INCLUDE)
+./codegen/CodeGen.o: ./codegen/CodeGen.cpp ./codegen/GlobalState.h ./codegen/RegisterFile.h AST/Node.hpp
+	$(CXX) -c -o $@ $< $(CFLAGS) $(INCLUDE) 
+./symtable/symtable.o: ./symtable/symtable.c ./symtable/symtable.h
+	$(CXX) -c -o $@ $< $(CFLAGS) $(INCLUDE)
+ ./semanticanalysis/SemanticAnalysis.o: ./semanticanalysis/SemanticAnalysis.cpp
 	$(CXX) -c -o $@ $< $(CFLAGS) $(INCLUDE)
 ##################################################################################
 

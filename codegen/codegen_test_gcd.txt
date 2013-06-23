@@ -1,0 +1,22 @@
+int gcd(int a, int b)
+{
+	if(b==0)
+	{
+		return a;
+	}
+	else
+	{
+		return gcd(b,a-a/b*b);
+	}
+}
+int main(void)
+{
+	int a;
+	int b;
+	int c;
+	a=input();
+	b=input();
+	c=gcd(a,b);
+	output(c);
+	return 0;
+}

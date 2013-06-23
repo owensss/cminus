@@ -19,6 +19,7 @@ struct VariablePositionAttribute
 {
 
 	bool userDefined;
+	bool isAddress;
 	struct
 	{
 		bool inRegister;
@@ -43,6 +44,7 @@ struct VariablePositionAttribute
 		memoryPosition.inMemory=false;
 		memoryPosition.where = GLOBAL_DATA_AREA;
 		memoryPosition.offset = 0;
+		isAddress = false;
 	}
 	void StoreInRegister(int index)
 	{
@@ -90,6 +92,17 @@ struct VariablePositionAttribute
 			char code[256];
 			::sprintf(code,"%d($fp)",memoryPosition.offset);
 			return std::string(code);
+		}
+	}
+	std::string RegName()
+	{
+		if(memoryPosition.where==GLOBAL_DATA_AREA)
+		{
+			return std::string("$gp");
+		}
+		else
+		{
+			return std::string("$fp");
 		}
 	}
 };

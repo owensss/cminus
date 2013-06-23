@@ -1,5 +1,5 @@
 %{
-// #define TEST
+ //#define TEST
 
 #ifdef TEST
 #define YYDEBUG 1
@@ -233,14 +233,18 @@ int main (int argc,char** argv) {
 		if(!(yyin=fopen(argv[1],"r")))
 		{
 			printf("Error:Can't open file %s\n",argv[1]);
+			return -1;
 		}
+		
 	}
 	else
 	{
+#define LOGICWORLD
 #ifdef LOGICWORLD // note: not work in Linux
-		if(!(yyin=fopen(".\\parse\\yacc_test.txt","r")))
+		if(!(yyin=fopen(".\\codegen\\codegen_test.txt","r")))
 		{
 			printf("Error:Can't open file %s\n",argv[1]);
+			return -1;
 		}
 #endif
 	}
@@ -248,5 +252,6 @@ int main (int argc,char** argv) {
 }
 
 void yyerror(const char* what) {
-	printf("%d:%d:error:%s\n", yylineno, colnum, what);
+	//printf("%d:%d:error:%s\n", yylineno, colnum, what);
+	printf("Error:%d-%d:%s",yylineno,colnum,what);
 }

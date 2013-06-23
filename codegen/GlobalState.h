@@ -8,7 +8,7 @@
 #ifndef GLOBALSTATE_H_
 #define GLOBALSTATE_H_
 
-#include <string>
+#include <ostream>
 
 namespace cminus
 {
@@ -19,14 +19,18 @@ struct GlobalState
 	int spOffset;
 	//global data area info.
 	int dataOffset;
-	//code.
-	std::string code;
+	//label id.
+	int labelID;
 
-	GlobalState()
+	//code.
+	std::ostream& code;
+
+	GlobalState(std::ostream& codeOutStream)
+	:code(codeOutStream)
 	{
 		spOffset = 0;
 		dataOffset = 0;
-		code = "";
+		labelID = 0;
 	}
 
 };

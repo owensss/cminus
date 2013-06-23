@@ -9,6 +9,7 @@ using namespace cminus;
 #include <cstdlib>
 int colnum = 0; // column number
 static int nextcolnum = 0;
+//#define TEST
 #ifdef TEST
 YYSTYPE yylval;
 #define TEST_OUT printf("\"%s\"", yytext);

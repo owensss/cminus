@@ -25,6 +25,7 @@ struct SymbolTableList
 struct SymbolTableStack
 {
 	struct SymbolTableList* current;
+	int currentLevel;
 };
 /**
  *@brief return the New SymbolTableStack .
@@ -64,7 +65,6 @@ extern struct Symbol* LookUpSymbolTableStack(char* name,
  */
 extern struct Symbol* InsertSymbolTableStack(char* name,void* type,
 		struct SymbolTableStack* stack);
-
 
 
 

@@ -26,7 +26,7 @@ RegisterFile::RegisterFile()
 		registers.push_back(registerA);
 	}
 
-	registerAllocPoint = T0_INDEX;
+	registerAllocPoint = S0_INDEX;
 }
 
 RegisterFile::~RegisterFile()
