@@ -17,29 +17,27 @@ class TextEditor : public QWidget
         
     public:
         explicit TextEditor(QWidget *parent = 0);
-        void setFiles(cminus::CMinusFiles* files_);
+        void setDocument(cminus::CMinusFiles::iterator);
         ~TextEditor();
-        cminus::CMinusFiles::iterator current() {return current_;}
+        cminus::CMinusFiles::iterator document() {return file;}
     public slots:
         void undo();
         void redo();
         void rehighlight();
-        void changeCurrent(cminus::CMinusFiles::iterator);
-        void changeCurrent(const QModelIndex& idx);
-        void changeCurrent(const QModelIndex& parent, int begin, int end);
     private slots:
         void on_textEdit_textChanged();
-        void testModified(void);
+        void text_modified();
+    signals:
+        void modified(TextEditor*);
     private:
         void do_setDocument(QTextDocument* doc);
         void autoIndent();
         void reset_tabWidth();
     private:
-        cminus::CMinusFiles* files;
         Ui::TextEditor *ui;
-        QTextDocument* document;
+        QTextDocument* document_;
         CMinusHighlighter* highlighter;
-        cminus::CMinusFiles::iterator current_;
+        cminus::CMinusFiles::iterator file;
 };
 
 #endif // TEXTEDITOR_HPP

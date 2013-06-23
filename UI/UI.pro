@@ -17,12 +17,21 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     TextEditor.cpp \
     CMinusHighlighter.cpp \
-    CMinusFiles.cpp
+    CMinusFiles.cpp \
+    codeeditor.cpp \
+    FileTreeView.cpp \
+    tabdocs.cpp
 
 HEADERS  += mainwindow.hpp \
     TextEditor.hpp \
     CMinusHighlighter.hpp \
-    CMinusFiles.hpp
+    CMinusFiles.hpp \
+    codeeditor.hpp \
+    FileTreeView.hpp \
+    tabdocs.hpp
 
 FORMS    += mainwindow.ui \
     TextEditor.ui
+
+RESOURCES += \
+    resource.qrc

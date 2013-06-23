@@ -2,88 +2,53 @@
 #include "ui_TextEditor.h"
 #include "CMinusHighlighter.hpp"
 #include <QDebug>
+#include "codeeditor.hpp"
 
 TextEditor::TextEditor(QWidget *parent) :
-    QWidget(parent),files(nullptr),
+    QWidget(parent),
     ui(new Ui::TextEditor),
-    document(nullptr),
-    highlighter(nullptr),
-    current_(nullptr)
+    document_(nullptr),
+    highlighter(nullptr)
 {
     ui->setupUi(this);
-    document = ui->textEdit->document();
     // highlight
     highlighter = new CMinusHighlighter(ui->textEdit);
-    highlighter->setDocument(ui->textEdit->document());
-
-    // list View
-    ui->listFile->setModel(files);
+    // highlighter->setDocument(ui->textEdit->document());
 }
 
 TextEditor::~TextEditor()
 {
     delete ui;
     ui = nullptr;
-    delete highlighter;
-}
-
-void TextEditor::do_setDocument(QTextDocument* doc) {
-    qDebug() << "set doc";
-    document = doc;
-    ui->textEdit->setDocument(doc);
-    ui->filename->setText(" "+current_->filename);
-    highlighter->setDocument(ui->textEdit->document());
-    reset_tabWidth();
 }
 
 void TextEditor::rehighlight() {
     highlighter->rehighlight();
 }
 
-void TextEditor::setFiles(cminus::CMinusFiles *files_) {
-    files = files_;
-    ui->listFile->setModel(files);
+void TextEditor::setDocument(cminus::CMinusFiles::iterator iter) {
+    file = iter;
+    document_ = file->doc;
+    document_->setParent(ui->textEdit);
+    highlighter->setParent(document_);
+    highlighter->setDocument(document_);
+    ui->textEdit->setDocument(document_);
 
-    current_ = files->at(0);
-    ui->listFile->setCurrentIndex(ui->listFile->model()->index(0, 0));
-
-    connect(ui->listFile, SIGNAL(clicked(QModelIndex)), this, SLOT(changeCurrent(const QModelIndex&)));
-    connect(files, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(changeCurrent(QModelIndex, int, int)) );
-    connect(files, SIGNAL(modified()), this, SLOT(testModified()));
+    connect(file->doc, SIGNAL(modificationChanged(bool)), this, SLOT(text_modified()));
+    ui->textEdit->setTabWidth();
 }
-
-void TextEditor::changeCurrent(cminus::CMinusFiles::iterator iter) {
-    qDebug() << "change current";
-    if (current_ == iter) return;
-    current_ = iter;
-    if (! files->valid(iter)) {
-        do_setDocument(nullptr);
-        return;
-    }
-    do_setDocument(iter->doc);
-}
-
-void TextEditor::changeCurrent(const QModelIndex &idx) {
-    qDebug() << "change to " << idx.row();
-    ui->listFile->setCurrentIndex(idx);
-    changeCurrent(files->at(idx.row()));
-
-}
-
-void TextEditor::changeCurrent(const QModelIndex &parent, int begin, int /*end*/) {
-    qDebug() << "chhange curr";
-   QModelIndex idx = files->index(begin, 0);
-   changeCurrent(idx);
+// workaround for connect SIGNAL, SIGNAL
+void TextEditor::text_modified() {
+    qDebug() << "aaa";
+    emit modified(this);
 }
 
 void TextEditor::undo() {
     ui->textEdit->undo();
-    testModified();
 }
 
 void TextEditor::redo() {
     ui->textEdit->redo();
-    testModified();
 }
 
 /* should do the following:
@@ -92,23 +57,18 @@ void TextEditor::redo() {
  */
 void TextEditor::on_textEdit_textChanged()
 {
-    testModified();
+    // testModified();
     // 无节操实现 括号匹配
-    QString text = this->document->toPlainText();
+    /*
+    QString text = this->document_->toPlainText();
     if (text.size() == 0) return;
     if (text[text.size()-1] == '{') {
         text = text + "\n\t\n}";
-        this->document->setPlainText(text);
+        this->document_->setPlainText(text);
         ui->textEdit->moveCursor(QTextCursor::Up);
         ui->textEdit->moveCursor(QTextCursor::Right);
     }
-}
-
-void TextEditor::testModified() {
-    if (! ui) return; // workaround for an unbelievable problem 0 0
-    if (ui->listFile->currentIndex().row() == -1) return;
-    QModelIndex index = ui->listFile->currentIndex();
-    ui->listFile->update(index);
+    */
 }
 
 void TextEditor::reset_tabWidth() {
