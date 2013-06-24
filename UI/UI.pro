@@ -9,7 +9,7 @@ QMAKE_CXXFLAGS += -std=c++0x
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = UI
+TARGET = cminusIDE
 TEMPLATE = app
 
 

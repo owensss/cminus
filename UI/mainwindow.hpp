@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "CMinusFiles.hpp"
+#include <QSplitter>
+#include <QProcess>
 
 namespace Ui {
 class MainWindow;
@@ -35,11 +37,21 @@ class MainWindow : public QMainWindow
         void closeTab(int t);
         void on_folders_clicked(const QModelIndex &index);
 
-    private:
+        void on_action_Compile_triggered();
+
+        void on_commandLinkButton_clicked();
+        void writeOutput(int, QProcess::ExitStatus);
+        void writeErrorOutput(QProcess::ProcessError);
+        void on_action_Run_triggered();
+
+private:
         bool do_close(cminus::CMinusFiles::iterator iter);
     private:
+        bool error;
         Ui::MainWindow *ui;
         cminus::CMinusFiles files;
+        QSplitter* splitter;
+        QProcess* compiler;
 };
 
 #endif // MAINWINDOW_HPP
