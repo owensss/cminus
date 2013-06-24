@@ -95,7 +95,7 @@ namespace cminus {
         beginRemoveRows(QModelIndex(), count, count);
         list.erase(iter);
         endRemoveRows();
-        if (rowCount() == 0) create();
+        // if (rowCount() == 0) create();
         return true;
     }
 
