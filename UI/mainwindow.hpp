@@ -33,7 +33,6 @@ class MainWindow : public QMainWindow
         void on_actionSaveAs_triggered();
         void on_actionSaveAll_triggered();
 
-        void on_actionCloseAll_triggered();
         void closeTab(int t);
         void on_folders_clicked(const QModelIndex &index);
 

@@ -16,10 +16,13 @@ MainWindow::MainWindow(QWidget *parent) :
     splitter->setOrientation(Qt::Vertical);
     splitter->addWidget(ui->codeTabs);
     splitter->addWidget(ui->outputText);
+
     ui->verticalLayout_2->addWidget(splitter);
     ui->verticalLayout_2->addWidget(ui->commandLinkButton);
-    ui->outputText->setFixedHeight(200);
+    // ui->outputText->setFixedHeight(200);
+
     ui->outputText->hide();
+
     // ui->->setFiles(&files);
     // create a new
     // on_action_New_triggered();
@@ -122,21 +125,6 @@ void MainWindow::on_action_New_triggered()
 void MainWindow::on_actionSaveAll_triggered()
 {
     files.writeAll();
-}
-
-void MainWindow::on_actionCloseAll_triggered()
-{
-    if (files.isModified(ui->codeTabs->document())) {
-        int ret = QMessageBox::warning(this, "Warning", "File Modified, Save before close?",
-                                 QMessageBox::Save | QMessageBox::Discard| QMessageBox::Cancel,
-                                 QMessageBox::Save);
-        if (ret == QMessageBox::Save)
-            on_actionSave_triggered();
-        else if (ret == QMessageBox::Cancel)
-            return;
-    }
-    files.close(ui->codeTabs->document());
-    // ui->codeTabs->changeCurrent(files.at(0));
 }
 
 void MainWindow::closeTab(int t) {
