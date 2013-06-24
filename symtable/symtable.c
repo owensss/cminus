@@ -11,7 +11,7 @@
  *@param type as the type is void*, so it can be any
  		type. But it will not be copied as name does.
  */
-struct Symbol* NewSymbol(char* name,void* type)
+struct Symbol* NewSymbol(const char* name,void* type)
 {
 	int len;
 	struct Symbol* ret = NULL;
@@ -72,7 +72,7 @@ struct SymbolList* DeleteSymbolList(struct SymbolList* symbolList)
 *@param symbolList can be NULL.
 */
 /************************************************************************/
-struct Symbol* LookUpSymbolListAll(char* name,struct SymbolList* symbolList)
+struct Symbol* LookUpSymbolListAll(const char* name,struct SymbolList* symbolList)
 {
 	assert(name);
 	while(symbolList!=NULL)
@@ -127,7 +127,7 @@ void DeleteSymbolTable(struct SymbolTable* symbolTable)
 	free(symbolTable->symbolTable);
 	free(symbolTable);
 }
-struct Symbol* LookUpSymbolTable(char* name,struct SymbolTable* symbolTable)
+struct Symbol* LookUpSymbolTable(const char* name,struct SymbolTable* symbolTable)
 {
 	int index = 0;
 	
@@ -181,7 +181,7 @@ struct Symbol* InsertSymbolTableList(struct Symbol* symbol,
 
 	return InsertSymbolTable(symbol,symbolTableList->symbolTable);
 }
-struct Symbol* LookUpSymbolTableListAll(char* name,
+struct Symbol* LookUpSymbolTableListAll(const char* name,
 		struct SymbolTableList* symbolTableList)
 {
 	assert(symbolTableList);
@@ -272,13 +272,13 @@ void PopSymbolTableStack(struct SymbolTableStack* stack)
 	stack->current = DeleteSymbolTableList(stack->current);
 	stack->currentLevel--;
 }
-struct Symbol* LookUpSymbolTableStack(char* name,
+struct Symbol* LookUpSymbolTableStack(const char* name,
 		struct SymbolTableStack* stack)
 {
 	assert(name && stack);
 	return LookUpSymbolTableListAll(name,stack->current);
 }
-struct Symbol* InsertSymbolTableStack(char* name,void* type,
+struct Symbol* InsertSymbolTableStack(const char* name,void* type,
 		struct SymbolTableStack* stack)
 {
 	struct Symbol* symbol = NULL;

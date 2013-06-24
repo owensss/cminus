@@ -51,7 +51,7 @@ extern void PopSymbolTableStack(
  *top to bottom.And return it,if find one.
  *-NULL if it can't find one.
  */
-extern struct Symbol* LookUpSymbolTableStack(char* name,
+extern struct Symbol* LookUpSymbolTableStack(const char* name,
 		struct SymbolTableStack* stack);
 /**
  *@brief it will be inserted into the topest SymbolTable.
@@ -63,7 +63,7 @@ extern struct Symbol* LookUpSymbolTableStack(char* name,
  * -Success return NULL
  * -Falied  return the same name symbol inserted before.
  */
-extern struct Symbol* InsertSymbolTableStack(char* name,void* type,
+extern struct Symbol* InsertSymbolTableStack(const char* name,void* type,
 		struct SymbolTableStack* stack);
 
 
