@@ -1,11 +1,13 @@
 int main(void)
 {
+	void f;
 	int a;
 	int b;
 	int c;
 	int d;
+	
 	int e[10];
-	void f;
+	
 	
 	a=10;
 	b=20;

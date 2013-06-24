@@ -14,6 +14,7 @@
 namespace cminus
 {
 #define ERROR_FORMAT "Error:"<<row()<<"-"<<col()<<":"
+#define ERROR_FORMAT_X(self) "Error:"<<(self).row()<<"-"<<(self).col()<<":"
 extern std::fstream xml_dump;
 SymbolTableStack g_symbolTableStack;
 int g_semanticErrorCount = 0;
@@ -57,7 +58,7 @@ void Node_var_declaration::semantic_analysis_preorder(void)
 			(void*) variable_attribute_, &g_symbolTableStack);
 	if (ret)
 	{
-		std::cerr << ERROR_FORMAT << "The same name had been defined before.\n";
+		std::cerr << ERROR_FORMAT << "The same name " << (char*&) this->id_<<" had been defined before.\n";
 		g_semanticErrorCount++;
 	}
 
@@ -66,6 +67,7 @@ void Node_var_declaration::semantic_analysis_preorder(void)
 		std::cerr << ERROR_FORMAT << "The type of " << variable_attribute_->name
 				<< " can not be void\n";
 		g_semanticErrorCount++;
+		//variable_attribute_->type.type=CM_INT;
 	}
 }
 void Node_fun_declaration::semantic_analysis_preorder(void)
@@ -79,7 +81,7 @@ void Node_fun_declaration::semantic_analysis_preorder(void)
 			(void*) function_attribute_, &g_symbolTableStack);
 	if (ret)
 	{
-		std::cerr << ERROR_FORMAT << "The same name had been defined before.\n";
+		std::cerr << ERROR_FORMAT_X(id_) << "The same name " << (char*&) this->id_<<" had been defined before.\n";
 		g_semanticErrorCount++;
 	}
 	PushSymbolTableStack(&g_symbolTableStack);
@@ -126,7 +128,7 @@ void Node_param::semantic_analysis_preorder()
 			(void*) variable_attribute_, &g_symbolTableStack);
 	if (ret)
 	{
-		std::cerr << ERROR_FORMAT << "The same name had been defined before.\n";
+		std::cerr << ERROR_FORMAT << "The same name " << (char*&) this->id_<<" had been defined before.\n";
 		g_semanticErrorCount++;
 	}
 
@@ -441,7 +443,8 @@ void Node_call::semantic_analysis_preorder()
 	if (!this->variable_attribute_)
 	{
 		this->variable_attribute_ = new VariableAttribute("temp");
-		this->variable_attribute_->type.type = function_attribute_->type.returntype.type;
+		this->variable_attribute_->type.type = function_attribute_ ?
+				function_attribute_->type.returntype.type:CM_INT;
 		this->variable_attribute_->type.arrayNum = 0;
 	}
 }
