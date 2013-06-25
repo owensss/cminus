@@ -14,7 +14,11 @@ int yylex(void);
 void yyerror(const char* what);
 int yyparse(void);
 int yywrap();
+int parse_error = false;
 using namespace cminus;
+namespace cminus {
+extern int g_semanticErrorCount;
+}
 %}
 
 %debug
@@ -249,9 +253,12 @@ int main (int argc,char** argv) {
 #endif
 	}
 	yyparse();
+	if (parse_error || g_semanticErrorCount) return -1;
+	return 0;
 }
 
 void yyerror(const char* what) {
 	//printf("%d:%d:error:%s\n", yylineno, colnum, what);
-	printf("Error:%d-%d:%s",yylineno,colnum,what);
+	fprintf(stderr, "Error:%d-%d:%s",yylineno,colnum,what);
+	parse_error = true;
 }

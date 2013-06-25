@@ -166,7 +166,6 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 int bracket_match(const QString& s) {
     return s.count('{') - s.count('}');
 }
-#include <iostream>
 
 void CodeEditor::keyPressEvent(QKeyEvent *e) {
     // Keep functionality of QTextEdit
@@ -180,7 +179,6 @@ void CodeEditor::keyPressEvent(QKeyEvent *e) {
         int cursorPosition = cur.position();
         using namespace std;
         bool nextIs_rb = data[cursorPosition] == '}' ? 1 : 0;
-        cerr << "#" << data[cursorPosition].toLatin1() << "#" << nextIs_rb << endl;
 
         data = data.mid(0, cursorPosition);
 
