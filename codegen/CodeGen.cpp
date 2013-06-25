@@ -260,6 +260,8 @@ namespace cminus
 		code_<<"j "<<FUNCTION_PREFIX<<this->function_attribute_->name<<"_return\n";
 
 		g_globalState.code<<code_.str();
+
+		g_registerFile.Clear();
 	}
 	void Node_expression::generate_code_postorder()
 	{
