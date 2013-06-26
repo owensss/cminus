@@ -7,7 +7,7 @@ Desc
 ----------
 
 > a cminus compiler running on spim
-a cminus IDE build by Qt5
+> a cminus IDE build by Qt5
 
 Deploy
 ------
