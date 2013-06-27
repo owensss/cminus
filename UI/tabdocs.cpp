@@ -7,6 +7,9 @@ TabDocs::TabDocs(QWidget *parent) :
 {
 }
 
+void TabDocs::updateLabel() {
+    changeTabLabel(current());
+}
 
 void TabDocs::insert(cminus::CMinusFiles::iterator iter) {
 

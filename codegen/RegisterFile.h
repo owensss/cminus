@@ -82,8 +82,8 @@ class RegisterFile
 			return m_name;
 		}
 	private:
-		const std::string m_name;
-		const int m_index;
+		std::string m_name;
+		int m_index;
 		bool used;
 		struct VariablePositionAttribute* variableAttribute;
 

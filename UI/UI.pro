@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = cminusIDE
 TEMPLATE = app
-
+CONFIG += static
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -19,7 +19,6 @@ SOURCES += main.cpp\
     CMinusHighlighter.cpp \
     CMinusFiles.cpp \
     codeeditor.cpp \
-    FileTreeView.cpp \
     tabdocs.cpp
 
 HEADERS  += mainwindow.hpp \

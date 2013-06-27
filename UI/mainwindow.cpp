@@ -86,6 +86,7 @@ void MainWindow::on_actionSaveAs_triggered() {
     if (! fileName.endsWith(".cm", Qt::CaseInsensitive))
         fileName += ".cm";
     ui->codeTabs->document()->filename = fileName;
+    ui->codeTabs->updateLabel();
     files.write(ui->codeTabs->document());
 }
 
